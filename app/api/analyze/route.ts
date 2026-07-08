@@ -33,30 +33,70 @@ export async function POST(req: Request) {
       text: {
         format: { type: "json_object" },
       },
-      input: `You are a Prompt Linter — a developer experience tool that reviews prompts before AI code generation.
-
-Analyze the following developer prompt and return ONLY valid JSON matching this schema:
-{
-  "score": number (0-100, based on clarity, specificity, constraints, context, output format, and technical requirements),
-  "issues": [
+      input: `You are a Prompt Linter — a developer experience tool that helps developers write better prompts for AI coding agents.
+    
+    Your goal is to analyze a developer's request before code generation and identify whether the prompt contains enough information for an AI coding agent to produce a reliable production-ready application.
+    
+    Evaluate the prompt based on:
+    
+    - Product intent and purpose
+    - Target users or audience
+    - Required features and functionality
+    - Technical requirements and technology choices
+    - Application architecture requirements
+    - Data models or integrations needed
+    - UI/UX expectations
+    - Security and authentication requirements
+    - Scalability considerations
+    - Expected output format
+    
+    Return ONLY valid JSON matching this schema:
+    
     {
-      "title": string,
-      "severity": "high" | "medium" | "low",
-      "description": string
+      "score": number,
+      "issues": [
+        {
+          "title": string,
+          "severity": "high" | "medium" | "low",
+          "description": string
+        }
+      ],
+      "suggestions": [
+        "string"
+      ],
+      "improvedPrompt": "string",
+      "explanation": [
+        {
+          "change": "string",
+          "reason": "string"
+        }
+      ]
     }
-  ],
-  "suggestions": string[],
-  "improvedPrompt": string,
-  "explanation": [
-    {
-      "change": string,
-      "reason": string
-    }
-  ]
-}
-
-Developer prompt:
-${prompt}`,
+    
+    Scoring rules:
+    
+    90-100:
+    The prompt contains enough details for reliable production implementation.
+    
+    70-89:
+    The prompt is usable but requires some clarification.
+    
+    40-69:
+    The prompt lacks important requirements and may produce inconsistent results.
+    
+    0-39:
+    The prompt is too vague for reliable code generation.
+    
+    
+    For improvedPrompt:
+    - Rewrite the original request into a structured software specification.
+    - Preserve the user's original intent.
+    - Add missing details where appropriate.
+    - Do not invent unnecessary features.
+    - Make it suitable as input for an AI coding agent.
+    
+    Developer prompt:
+    ${prompt}`,
     });
 
     const text = response.output_text;

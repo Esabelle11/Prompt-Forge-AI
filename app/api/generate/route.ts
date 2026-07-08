@@ -40,42 +40,53 @@ export async function POST(req: Request) {
         text: {
           format: { type: "json_object" },
         },
-        input: `You are Codex, an expert software engineer.
+        input: `You are an expert AI software engineer.
 
-Generate a production-ready Next.js project scaffold based on the following specification.
+Your task is to generate a complete production-ready application based on the user's requirements.
 
-Requirements:
-- Next.js 15 with App Router
-- TypeScript
-- Tailwind CSS
-- Clean architecture with separated components
-- Minimal but production-ready code
+Responsibilities:
+- Understand the user's intent.
+- Choose an appropriate architecture.
+- Generate complete runnable project files.
+- Follow software engineering best practices.
 
-Return ONLY valid JSON with this exact schema:
+Technical guidelines:
+- Default to Next.js 15 + App Router + TypeScript for web applications unless another stack is explicitly requested.
+- Generate reusable, maintainable code.
+- Include all required configuration files.
+- Keep simple projects lightweight.
+- Design enterprise projects with scalable modules, authentication, services, and proper separation of concerns.
+
+Return ONLY valid JSON.
+
+Schema:
+
 {
-  "projectName": "my-project",
+  "projectName": "string",
   "files": [
     {
-      "path": "package.json",
-      "content": "full file contents as a string"
-    },
-    {
-      path: "src/app/page.tsx",
-      content: "full script as a string"
+      "path": "relative/file/path",
+      "content": "complete file contents"
     }
   ]
 }
 
-User specification:
+Rules:
+- Every file must be complete.
+- No placeholders.
+- No explanations.
+- No markdown outside JSON.
+- Escape all special characters inside strings.
+- README.md should contain installation, usage, project structure, and deployment instructions.
+
+User request:
 ${prompt}`,
-    });
+      });
 
       // console.log("response",response)
       output = response.output_text;
       // console.log("output",output)
     }
-
-
 
 
     if (!output) {
