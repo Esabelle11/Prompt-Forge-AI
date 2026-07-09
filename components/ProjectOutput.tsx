@@ -47,7 +47,7 @@ export default function ProjectOutput({
       <div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h2 className="text-lg font-semibold text-gray-900">
-            Generate with Codex
+            Generate Project
           </h2>
           <p className="mt-1 text-sm text-gray-500">
             Create a downloadable project scaffold from the improved prompt.
@@ -74,7 +74,7 @@ export default function ProjectOutput({
             ) : (
               <>
                 <Rocket className="h-4 w-4" />
-                Generate with Codex
+                Generate Project
               </>
             )}
           </button>
@@ -84,7 +84,7 @@ export default function ProjectOutput({
       {!project ? (
         <p className="text-sm text-gray-500">
           Analyze and refine your prompt first, then generate a production-ready
-          project scaffold with Codex.
+          project scaffold.
         </p>
       ) : (
         <div className="space-y-4">

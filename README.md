@@ -9,7 +9,7 @@ Instead of immediately generating code from a vague prompt, Prompt Linter perfor
 - **Prompt Analysis** — Score, issues, and suggestions for your prompt
 - **Improved Prompt** — Production-ready version of your original prompt
 - **Why Better** — Educational explanations for each improvement
-- **Generate with Codex** — Create a project scaffold from the refined prompt
+- **Generate Project** — Create a project scaffold from the refined prompt
 
 ## Getting Started
 
@@ -40,4 +40,4 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 2. Write your initial prompt (e.g. "Build me a website")
 3. Click **Analyze Prompt** to get a quality score, issues, and suggestions
 4. Review the improved prompt and explanations
-5. Click **Generate with Codex** to create a production-ready project scaffold
+5. Click **Generate Project** to create a production-ready project scaffold
