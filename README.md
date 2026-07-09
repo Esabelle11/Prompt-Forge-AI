@@ -1,6 +1,6 @@
 # Prompt Linter
 
-A Developer Experience (DX) tool that improves the quality of developer prompts before AI-powered code generation.
+A Developer Experience (DX) tool built with the OpenAI Responses API and GPT models that transforms vague developer prompts into structured software specifications before generating production-ready project scaffolds.
 
 Instead of immediately generating code from a vague prompt, Prompt Linter performs an intelligent review, identifies missing information, and produces a structured specification for higher-quality code generation.
 
