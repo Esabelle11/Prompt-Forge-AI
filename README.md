@@ -1,43 +1,345 @@
-# Prompt Linter
+# PromptForge AI
 
-A Developer Experience (DX) tool built with the OpenAI Responses API and GPT models that transforms vague developer prompts into structured software specifications before generating structured project scaffolds.
+> Transform human ideas into production-ready engineering specifications before AI writes a single line of code.
 
-Instead of immediately generating code from a vague prompt, Prompt Linter performs an intelligent review, identifies missing information, and produces a structured specification for higher-quality code generation.
+PromptForge AI is an AI-powered software engineering workflow that sits between a human idea and an AI coding agent such as Codex. Instead of sending vague prompts directly to an LLM, PromptForge AI performs requirements engineering, specification compilation, multi-agent engineering review, production-readiness prediction, and finally generates a production-grade implementation brief that AI coding agents can reliably execute.
 
-## Features
+The goal is simple:
 
-- **Prompt Analysis** — Score, issues, and suggestions for your prompt
-- **Improved Prompt** — Production-ready version of your original prompt
-- **Why Better** — Educational explanations for each improvement
-- **Generate Project** — Create a project scaffold from the refined prompt
+> **Better specifications produce better software.**
 
-## Getting Started
+---
 
-### 1. Install dependencies
+# Why I Built This
 
-```bash
-npm install
+The recent generation of AI coding agents—including Codex, Cursor, Claude Code, Gemini CLI, and similar tools—are remarkably capable at implementing software.
+
+However, they all share the same limitation:
+
+**They can only build what the prompt describes.**
+
+In practice, many developers submit prompts such as:
+
+> "Build me an e-commerce website."
+
+or
+
+> "Create a CRM."
+
+The AI then makes dozens of assumptions:
+
+* Which users?
+* Authentication?
+* Database?
+* Folder structure?
+* API design?
+* Security model?
+* Deployment?
+* Testing strategy?
+
+Every missing requirement forces the coding agent to guess.
+
+The result is often:
+
+* inconsistent architectures
+* security issues
+* missing features
+* repeated prompting
+* wasted tokens
+* unnecessary regeneration
+
+The real bottleneck is no longer code generation.
+
+The bottleneck is **requirements engineering.**
+
+PromptForge AI was built to solve that problem.
+
+---
+
+# The Problem
+
+Today's AI coding workflow typically looks like this:
+
+```
+Human Idea
+      │
+      ▼
+AI Coding Agent
+      │
+      ▼
+Generated Code
 ```
 
-### 2. Run the development server
+Unfortunately, AI receives incomplete requirements and fills the gaps using assumptions.
 
-```bash
-npm run dev
+Those assumptions frequently lead to:
+
+* incorrect architectures
+* weak security
+* inconsistent APIs
+* missing business requirements
+* additional prompting cycles
+* expensive regeneration
+
+---
+
+# The Solution
+
+PromptForge AI introduces an AI Software Engineering workflow before code generation.
+
+```
+Human Idea
+      │
+      ▼
+Prompt Analysis
+      │
+      ▼
+Requirement Interview
+      │
+      ▼
+Specification Compiler
+      │
+      ▼
+AI Engineering Council
+      │
+      ▼
+Consensus Engineering Specification
+      │
+      ▼
+Quality Predictor
+      │
+      ▼
+Production README
+      │
+      ▼
+Codex
+      │
+      ▼
+Production Project
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+Instead of prompting an AI coder directly, PromptForge AI first behaves like an experienced engineering team.
 
-## Tech Stack
+---
 
-- Next.js 15
-- TypeScript
-- Tailwind CSS
-- OpenAI Responses API
+# Features
 
-## Workflow
+## Prompt Analysis
 
-1. Click the **API Key** button in the app header to enter OpenAI API key it
-2. Write your initial prompt (e.g. "Build me a website")
-3. Click **Analyze Prompt** to get a quality score, issues, and suggestions
-4. Review the improved prompt and explanations
-5. Click **Generate Project** to create a production-ready project scaffold
+Evaluates the prompt for engineering completeness.
+
+Produces:
+
+* Prompt quality score
+* Missing requirements
+* Engineering suggestions
+* Interview decision
+
+---
+
+## Requirement Interview Agent
+
+If critical information is missing, PromptForge AI dynamically interviews the developer.
+
+Examples include:
+
+* Target users
+* Authentication
+* Database
+* Technology stack
+* Deployment platform
+* Security requirements
+* Core functionality
+
+The interview continues until enough information exists to build reliable software.
+
+---
+
+## Specification Compiler
+
+All collected information is transformed into a structured software engineering specification.
+
+Rather than sending a natural language prompt into an AI coding agent, PromptForge AI produces an implementation-ready specification.
+
+---
+
+## AI Engineering Council
+
+PromptForge AI simulates an engineering review board composed of multiple specialist agents.
+
+### Architect AI
+
+Reviews:
+
+* scalability
+* modularity
+* maintainability
+* system architecture
+
+---
+
+### Security AI
+
+Reviews:
+
+* authentication
+* authorization
+* secrets
+* API security
+* vulnerabilities
+
+---
+
+### QA AI
+
+Reviews:
+
+* testing strategy
+* edge cases
+* validation
+* production readiness
+
+---
+
+## Consensus Engineering Specification
+
+Instead of trusting a single model response, PromptForge AI merges feedback from multiple engineering specialists into one unified implementation specification.
+
+---
+
+## Code Generation Quality Predictor
+
+Before code generation, PromptForge AI estimates implementation readiness.
+
+Evaluation includes:
+
+* requirement completeness
+* architectural consistency
+* implementation risk
+* maintainability
+* production readiness
+
+This allows developers to identify specification issues before spending tokens on code generation.
+
+---
+
+## Production README Generator
+
+PromptForge AI produces a production-ready implementation document.
+
+The README contains:
+
+* Project Objective
+* Functional Requirements
+* Architecture
+* Folder Structure
+* Database Design
+* API Requirements
+* Security Requirements
+* Testing Strategy
+* Definition of Done
+
+The document can be:
+
+* reviewed by humans
+* shared with engineering teams
+* committed into repositories
+* exported as Markdown
+* supplied directly to AI coding agents
+
+---
+
+## Codex Integration
+
+Once the specification reaches production quality, PromptForge AI sends the implementation brief to Codex to generate the software project.
+
+This greatly reduces hallucination and improves implementation consistency.
+
+---
+
+# Workflow
+
+```
+Human Idea
+      │
+      ▼
+Prompt Analysis
+      │
+      ▼
+Requirement Interview
+      │
+      ▼
+Specification Compiler
+      │
+      ▼
+Architecture Review
+      │
+      ▼
+Security Review
+      │
+      ▼
+QA Review
+      │
+      ▼
+Consensus Specification
+      │
+      ▼
+Production Readiness Prediction
+      │
+      ▼
+Production README
+      │
+      ▼
+Codex Project Generation
+```
+
+---
+
+# Technology Stack
+
+* Next.js 15
+* React
+* TypeScript
+* Tailwind CSS
+* OpenAI Responses API
+* GPT-5.6
+* Codex
+
+---
+
+# Why This Matters
+
+PromptForge AI shifts AI-assisted software development from **prompt engineering** to **requirements engineering**.
+
+Instead of asking developers to become experts at prompting AI, PromptForge AI applies software engineering methodology to produce specifications that AI coding agents can reliably execute.
+
+This reduces ambiguity, improves code quality, and enables AI coding agents to behave more like production software teams rather than autocomplete systems.
+
+---
+
+# Future Roadmap
+
+* Persistent project memory
+* Multi-round engineering debate
+* Cost estimation
+* Timeline prediction
+* Architecture diagrams
+* Database schema generation
+* API contract generation
+* CI/CD planning
+* Infrastructure planning
+* GitHub integration
+* Jira export
+* Figma requirement import
+* Human approval checkpoints
+* Multi-agent planning for large software projects
+
+---
+
+# Vision
+
+PromptForge AI is not another AI coding assistant.
+
+It is an AI Software Engineering System that transforms incomplete ideas into production-ready engineering specifications before code generation begins.
+
+The long-term vision is to enable AI coding agents to work from the same level of engineering documentation that experienced software teams rely on today.
