@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { buildSpecification } from "@/compiler/specification-builder";
+import { buildSpecification } from "@/agents/compiler/specification-builder";
 import { mockCompiler } from "@/lib/mock/compiler";
 const USE_MOCK = true;
 

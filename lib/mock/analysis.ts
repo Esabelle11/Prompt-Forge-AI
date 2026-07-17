@@ -42,7 +42,7 @@ export const mockAnalysis: AnalysisResult = {
     "Add acceptance criteria so the generated solution can be objectively evaluated.",
   ],
 
-  needsInterview: true,
+  needsInterview: false,
 
   interviewReason:
     "The prompt is missing several critical implementation details including functional requirements, technology preferences, user workflows, and acceptance criteria. Additional clarification is recommended before generating a software specification.",

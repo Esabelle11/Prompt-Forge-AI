@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { predictCodeQuality } from "@/predictor/quality-predictor";
+import { predictCodeQuality } from "@/agents/predictor/quality-predictor";
 import { mockQualityPrediction } from "@/lib/mock/predictor";
 
 const USE_MOCK = true;

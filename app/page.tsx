@@ -41,12 +41,8 @@ export default function Home(){
   const [generateModel,setGenerateModel] = useState(DEFAULT_GENERATE_MODEL);
   const [loading,setLoading] = useState(false);
   const [error,setError] = useState<string|null>(null);
-  // const [workflowSteps,setWorkflowSteps] = useState(INITIAL_WORKFLOW_STEPS);
-
   const [workflowSteps,setWorkflowSteps] = useState( () => INITIAL_WORKFLOW_STEPS.map(step=>({ ...step})));
-
-
-
+  
   const handleApiKeyChange = useCallback( (key:string)=>{
      setApiKey(key);},[]);
 
@@ -80,12 +76,30 @@ export default function Home(){
 
   }
 
-
+  function resetWorkflow() {
+    setAnalysis(null);
+    setInterview(null);
+    setSpecification("");
+    setReviews(null);
+    setConsensus("");
+    setQuality(null);
+    setProductionPrompt("");
+    setProject(null);
+    setError(null);
+   
+    // Reset workflow progress
+    setWorkflowSteps(
+      INITIAL_WORKFLOW_STEPS.map((step) => ({
+        ...step,
+      }))
+    );
+  }
 
   async function analyzePrompt(){
 
     setLoading(true);
     setError(null);
+    resetWorkflow();
 
     try{
       const res = await fetch("/api/analyze",{

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { buildProductionPrompt } from "@/document/production-prompt-builder";
+import { buildProductionPrompt } from "@/agents/document/production-prompt-builder";
 import { mockCodexBrief } from "@/lib/mock/document";
 
 const USE_MOCK = true;

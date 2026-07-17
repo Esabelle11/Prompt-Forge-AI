@@ -1,5 +1,5 @@
 import {NextRequest,NextResponse} from "next/server";
-import {buildConsensus} from "@/consensus/consensus-builder";
+import {buildConsensus} from "@/agents/consensus/consensus-builder";
 import {mockConsensus } from "@/lib/mock/consensus"
 
 const USE_MOCK = true;
