@@ -9,3 +9,5 @@ export function createOpenAIClient(apiKey?: string) {
 
   return new OpenAI({ apiKey: key });
 }
+
+

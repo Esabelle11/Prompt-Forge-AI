@@ -4,8 +4,9 @@ import { DEFAULT_ANALYZE_MODEL } from "@/lib/models";
 import { parseModelJson } from "@/lib/parse-json";
 import type { AnalysisResult } from "@/types/analysis";
 import { mockAnalysis } from "@/lib/mock/analysis";
+import { analysisAgent } from "@/agents/analysis-agent";
 
-const USE_MOCK = false;
+const USE_MOCK = true;
 
 export async function POST(req: Request) {
   try {
@@ -20,100 +21,29 @@ export async function POST(req: Request) {
     }
 
     if (USE_MOCK) {
-      console.log("IN MOCK");
+      console.log("IN MOCK : mockAnalysis");
+      await new Promise((resolve) => setTimeout(resolve, 5000));
+
       return NextResponse.json({
         result: mockAnalysis,
       });
     }
 
-    const openai = createOpenAIClient(apiKey);
+    const result =  await analysisAgent( prompt, model, apiKey);
 
-    const response = await openai.responses.create({
-      model,
-      text: {
-        format: { type: "json_object" },
-      },
-      input: `You are a Prompt Linter — a developer experience tool that helps developers write better prompts for AI coding agents.
     
-    Your goal is to analyze a developer's request before code generation and identify whether the prompt contains enough information for an AI coding agent to produce a reliable production-ready application.
-    
-    Evaluate the prompt based on:
-    
-    - Product intent and purpose
-    - Target users or audience
-    - Required features and functionality
-    - Technical requirements and technology choices
-    - Application architecture requirements
-    - Data models or integrations needed
-    - UI/UX expectations
-    - Security and authentication requirements
-    - Scalability considerations
-    - Expected output format
-    
-    Return ONLY valid JSON matching this schema:
-    
-    {
-      "score": number,
-      "issues": [
-        {
-          "title": string,
-          "severity": "high" | "medium" | "low",
-          "description": string
-        }
-      ],
-      "suggestions": [
-        "string"
-      ],
-      "improvedPrompt": "string",
-      "explanation": [
-        {
-          "change": "string",
-          "reason": "string"
-        }
-      ]
-    }
-    
-    Scoring rules:
-    
-    90-100:
-    The prompt contains enough details for reliable production implementation.
-    
-    70-89:
-    The prompt is usable but requires some clarification.
-    
-    40-69:
-    The prompt lacks important requirements and may produce inconsistent results.
-    
-    0-39:
-    The prompt is too vague for reliable code generation.
-    
-    
-    For improvedPrompt:
-    - Rewrite the original request into a structured software specification.
-    - Preserve the user's original intent.
-    - Add missing details where appropriate.
-    - Do not invent unnecessary features.
-    - Make it suitable as input for an AI coding agent.
-    
-    Developer prompt:
-    ${prompt}`,
-    });
-
-    const text = response.output_text;
-
-    if (!text) {
+    if (!result) {
       return NextResponse.json(
         { error: "No response from model" },
         { status: 500 }
       );
     }
 
-    const result = parseModelJson<AnalysisResult>(text);
+    const final_result = parseModelJson<AnalysisResult>(result);
+    return NextResponse.json({ final_result });
 
-    return NextResponse.json({ result });
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Failed to analyze prompt";
+    const message = error instanceof Error ? error.message : "Failed to analyze prompt";
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

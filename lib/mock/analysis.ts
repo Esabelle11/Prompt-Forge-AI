@@ -1,69 +1,49 @@
 import type { AnalysisResult } from "@/types/analysis";
 
+
 export const mockAnalysis: AnalysisResult = {
-  score: 25,
+  score: 68,
 
   issues: [
     {
-      title: "Lack of specificity",
+      title: "Missing Functional Requirements",
       severity: "high",
       description:
-        "The prompt does not specify any features, style, or content for the personal webpage.",
+        "The prompt does not clearly describe the expected features, workflows, or business logic of the application.",
     },
     {
-      title: "Missing technical requirements",
-      severity: "high",
-      description:
-        "No programming languages, frameworks, or technologies are mentioned.",
-    },
-    {
-      title: "No output format specified",
+      title: "Unclear Technology Stack",
       severity: "medium",
       description:
-        "The prompt does not describe the expected output format or file types.",
+        "No preferred programming language, framework, or deployment environment is specified.",
     },
     {
-      title: "No context or purpose",
+      title: "No Success Criteria",
       severity: "medium",
       description:
-        "The prompt lacks information about the intended audience or purpose of the personal webpage.",
+        "The prompt lacks measurable acceptance criteria, making it difficult to verify implementation quality.",
+    },
+    {
+      title: "Limited Edge Case Coverage",
+      severity: "low",
+      description:
+        "Potential error handling, validation rules, and exceptional scenarios are not mentioned.",
     },
   ],
 
   suggestions: [
-    "Specify the content sections (e.g., about me, portfolio, contact).",
-    "Mention preferred technologies or frameworks (e.g., HTML, CSS, React).",
-    "Define the desired style or theme (e.g., minimalistic, colorful).",
-    "Indicate the output format (e.g., a single HTML file, a React app).",
-    "Provide context such as the webpage's purpose or target audience.",
+    "Clearly define the application's primary objective and target users.",
+    "List the core features in order of priority.",
+    "Specify the preferred technology stack (e.g. Next.js, FastAPI, PostgreSQL).",
+    "Describe user roles, permissions, and authentication requirements.",
+    "Include validation rules and expected error handling behavior.",
+    "Provide sample input/output or API examples where applicable.",
+    "Define non-functional requirements such as performance, scalability, and security.",
+    "Add acceptance criteria so the generated solution can be objectively evaluated.",
   ],
 
-  improvedPrompt:
-    "Build me a personal webpage that includes an About Me section, a portfolio showcasing my projects, and a contact form. " +
-    "Use HTML, CSS, and JavaScript with a clean and modern design. " +
-    "The output should be a responsive single-page website suitable for desktop and mobile. " +
-    "Please provide all necessary files and instructions for deployment.",
+  needsInterview: true,
 
-  explanation: [
-    {
-      change: "Added specific content sections and features",
-      reason:
-        "To give clear guidance on what the webpage should contain.",
-    },
-    {
-      change: "Specified technologies and design style",
-      reason:
-        "To align development with preferred tools and aesthetics.",
-    },
-    {
-      change: "Defined output format and responsiveness",
-      reason:
-        "To clarify the expected deliverable and usability across devices.",
-    },
-    {
-      change: "Included context for purpose and audience",
-      reason:
-        "To help tailor the webpage for its intended users.",
-    },
-  ],
+  interviewReason:
+    "The prompt is missing several critical implementation details including functional requirements, technology preferences, user workflows, and acceptance criteria. Additional clarification is recommended before generating a software specification.",
 };
