@@ -1,8 +1,9 @@
 import {NextRequest,NextResponse} from "next/server";
 import {buildConsensus} from "@/agents/consensus/consensus-builder";
 import {mockConsensus } from "@/lib/mock/consensus"
+import {runAgent} from "@/helper/run_agent";
 
-const USE_MOCK = true;
+const USE_MOCK = false;
 
 export async function POST(
     req:NextRequest
@@ -21,16 +22,22 @@ export async function POST(
             });
         }
 
-        const result = await buildConsensus({
+        // const result = await buildConsensus({
+        //     specification:body.specification,
+        //     reviews: body.reviews,
+        //     apiKey
+        // });
+
+        const result = await runAgent("consensus", () => buildConsensus({
             specification:body.specification,
             reviews: body.reviews,
+            model:body.model,
             apiKey
-        });
+        }));
 
         return NextResponse.json({
             consensusSpecification:result
         });
-
 
     }catch(error){
 

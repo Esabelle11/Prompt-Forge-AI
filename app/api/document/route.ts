@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { buildProductionPrompt } from "@/agents/document/production-prompt-builder";
 import { mockCodexBrief } from "@/lib/mock/document";
+import {runAgent} from "@/helper/run_agent";
 
-const USE_MOCK = true;
+const USE_MOCK = false;
 
 export async function POST(
 req:NextRequest
@@ -23,11 +24,18 @@ req:NextRequest
         });
       }
 
-    const document =await buildProductionPrompt(
+    // const document =await buildProductionPrompt(
+    //     body.consensusSpecification,
+    //     body.qualityReport,
+    //     apiKey
+    // );
+
+    const document =await  runAgent("document", () => buildProductionPrompt(
         body.consensusSpecification,
         body.qualityReport,
+        body.model,
         apiKey
-    );
+    ));
 
     return NextResponse.json({
       productionPrompt: document

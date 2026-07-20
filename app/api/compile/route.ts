@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { buildSpecification } from "@/agents/compiler/specification-builder";
 import { mockCompiler } from "@/lib/mock/compiler";
-const USE_MOCK = true;
+import {runAgent} from "@/helper/run_agent";
+
+const USE_MOCK = false;
 
 
 export async function POST(req: NextRequest) {
@@ -21,13 +23,25 @@ export async function POST(req: NextRequest) {
             });
         }
 
-        const specification =
-            await buildSpecification({
+        // const specification = await buildSpecification({
+        //         prompt: body.prompt,
+        //         analysis: body.analysis,
+        //         interviewAnswers: body.interviewAnswers,
+        //         apiKey
+        //     });
+
+        const specification = await runAgent("specification", () =>  buildSpecification({
                 prompt: body.prompt,
                 analysis: body.analysis,
                 interviewAnswers: body.interviewAnswers,
+                model: body.model,
                 apiKey
-            });
+            }));
+
+
+        
+
+
 
         return NextResponse.json({
 

@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { predictCodeQuality } from "@/agents/predictor/quality-predictor";
 import { mockQualityPrediction } from "@/lib/mock/predictor";
+import {runAgent} from "@/helper/run_agent";
 
-const USE_MOCK = true;
+const USE_MOCK = false;
 
 export async function POST(
   req: NextRequest
@@ -20,14 +21,18 @@ export async function POST(
       });
     }
 
-    const result = await predictCodeQuality(
-        body.consensusSpecification,
-        apiKey
-    );
+    // const result = await predictCodeQuality(
+    //     body.consensusSpecification,
+    //     apiKey
+    // );
 
+    const result = await  runAgent("predict", () => predictCodeQuality(
+      body.consensusSpecification,
+      body.model,
+      apiKey
+    ));
 
     return NextResponse.json({ qualityReport: result });
-
 
   } catch(error){
 

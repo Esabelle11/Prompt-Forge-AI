@@ -1,155 +1,142 @@
 import { createOpenAIClient } from "@/lib/openai";
+import { DEFAULT_ANALYZE_MODEL } from "@/lib/models";
 
 
 interface ConsensusInput {
-
     specification:string;
-
     reviews:{
         architecture:any;
         security:any;
         qa:any;
     };
-
+    model?:string;
     apiKey?:string;
-
 }
 
 
 
 export async function buildConsensus({
-
     specification,
-
     reviews,
-
+    model,
     apiKey
-
 }:ConsensusInput){
 
+    console.log(`In buildConsensus, model :${model}`);
 
-const openai =
-    createOpenAIClient(apiKey);
+    const openai =createOpenAIClient(apiKey);
 
+    const response =await openai.responses.create({
+    model: model?model:DEFAULT_ANALYZE_MODEL,
 
+    input:`
 
-const response =
-await openai.responses.create({
+    You are the Engineering Lead of a software team.
 
-model:"gpt-5-mini",
+    You received:
 
+    1. Original Engineering Specification
 
-input:`
+    2. Architecture Review
 
-You are the Engineering Lead of a software team.
+    3. Security Review
 
-You received:
+    4. QA Review
 
-1. Original Engineering Specification
 
-2. Architecture Review
+    Your responsibility:
 
-3. Security Review
+    Create a final consensus specification.
 
-4. QA Review
+    Resolve conflicts between reviewers.
 
+    Prioritize:
 
-Your responsibility:
+    - Production reliability
+    - Security
+    - Maintainability
+    - Developer experience
 
-Create a final consensus specification.
 
-Resolve conflicts between reviewers.
+    Do NOT generate code.
 
-Prioritize:
+    Produce a final engineering blueprint.
 
-- Production reliability
-- Security
-- Maintainability
-- Developer experience
 
 
-Do NOT generate code.
+    Original Specification:
 
-Produce a final engineering blueprint.
+    ${specification}
 
 
 
-Original Specification:
+    Architecture Review:
 
-${specification}
+    ${JSON.stringify(
+    reviews.architecture,
+    null,
+    2
+    )}
 
 
 
-Architecture Review:
+    Security Review:
 
-${JSON.stringify(
-reviews.architecture,
-null,
-2
-)}
+    ${JSON.stringify(
+    reviews.security,
+    null,
+    2
+    )}
 
 
 
-Security Review:
+    QA Review:
 
-${JSON.stringify(
-reviews.security,
-null,
-2
-)}
+    ${JSON.stringify(
+    reviews.qa,
+    null,
+    2
+    )}
 
 
 
-QA Review:
+    Return Markdown:
 
-${JSON.stringify(
-reviews.qa,
-null,
-2
-)}
 
 
+    # Final Project Specification
 
-Return Markdown:
 
+    ## Project Overview
 
 
-# Final Project Specification
+    ## Final Architecture Decisions
 
 
-## Project Overview
+    ## Technology Stack
 
 
-## Final Architecture Decisions
+    ## Database Design
 
 
-## Technology Stack
+    ## Security Requirements
 
 
-## Database Design
+    ## API Design
 
 
-## Security Requirements
+    ## Testing Strategy
 
 
-## API Design
+    ## Acceptance Criteria
 
 
-## Testing Strategy
+    ## Implementation Constraints
 
 
-## Acceptance Criteria
+    `
 
+    });
 
-## Implementation Constraints
-
-
-`
-
-});
-
-
-return response.output_text;
-
-
+    return response.output_text;
 }

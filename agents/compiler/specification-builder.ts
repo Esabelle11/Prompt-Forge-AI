@@ -5,6 +5,7 @@ interface CompileInput {
   prompt: string;
   analysis: any;
   interviewAnswers: Record<string, string>;
+  model?: string;
   apiKey?: string;
 }
 
@@ -12,12 +13,16 @@ export async function buildSpecification({
   prompt,
   analysis,
   interviewAnswers,
+  model,
   apiKey,
 }: CompileInput) {
+ 
+  console.log(`In buildSpecification, model :${model}`);
+
   const openai = createOpenAIClient(apiKey);
 
   const response = await openai.responses.create({
-    model: DEFAULT_ANALYZE_MODEL,
+    model: model?model:DEFAULT_ANALYZE_MODEL,
 
     input: `
 You are a Principal Software Architect.

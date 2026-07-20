@@ -1,99 +1,101 @@
 import {createOpenAIClient} from "@/lib/openai";
+import { DEFAULT_ANALYZE_MODEL } from "@/lib/models";
 
 
 
 export async function buildProductionPrompt(
     consensus:string,
     qualityReport:any,
+    model?:string,
     apiKey?:string
 ){
-const openai = createOpenAIClient(apiKey);
+    console.log(`In buildConsensus, model :${model}`);
+    const openai = createOpenAIClient(apiKey);
 
-const response = await openai.responses.create({
-    model:"gpt-5-mini",
-    input:`
-
-    You are preparing an engineering handoff document
-    for Codex, an AI software development agent.
-
-
-    Convert the following engineering specification
-    into an implementation instruction document.
+    const response = await openai.responses.create({
+        model: model?model:DEFAULT_ANALYZE_MODEL,
+        input:`
+        You are preparing an engineering handoff document
+        for Codex, an AI software development agent.
 
 
-    The document must help Codex understand:
-
-    - what to build
-    - architecture decisions
-    - technical constraints
-    - coding standards
-    - testing expectations
-    - deployment requirements
+        Convert the following engineering specification
+        into an implementation instruction document.
 
 
-    Do NOT change requirements.
+        The document must help Codex understand:
 
-    Do NOT add features.
+        - what to build
+        - architecture decisions
+        - technical constraints
+        - coding standards
+        - testing expectations
+        - deployment requirements
 
-    Make instructions explicit.
 
+        Do NOT change requirements.
 
+        Do NOT add features.
 
-    Consensus Specification:
-
-    ${consensus}
+        Make instructions explicit.
 
 
 
-    Quality Prediction:
+        Consensus Specification:
 
-    ${JSON.stringify(
-    qualityReport,
-    null,
-    2
-    )}
+        ${consensus}
 
 
 
-    Return Markdown:
+        Quality Prediction:
+
+        ${JSON.stringify(
+        qualityReport,
+        null,
+        2
+        )}
 
 
-    # Codex Implementation Brief
+
+        Return Markdown:
 
 
-    ## Objective
+        # Codex Implementation Brief
 
 
-    ## Required Features
+        ## Objective
 
 
-    ## Architecture
+        ## Required Features
 
 
-    ## Technology Requirements
+        ## Architecture
 
 
-    ## Folder Structure
+        ## Technology Requirements
 
 
-    ## Database Requirements
+        ## Folder Structure
 
 
-    ## API Requirements
+        ## Database Requirements
 
 
-    ## Security Rules
+        ## API Requirements
 
 
-    ## Testing Requirements
+        ## Security Rules
 
 
-    ## Definition of Done
+        ## Testing Requirements
 
 
-    `
-});
+        ## Definition of Done
 
 
-return response.output_text;
+        `
+    });
+
+
+    return response.output_text;
 }

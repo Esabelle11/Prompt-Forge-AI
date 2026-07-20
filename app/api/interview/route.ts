@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { DEFAULT_ANALYZE_MODEL } from "@/lib/models";
 import { requirementAgent } from "@/agents/requirement-agent";
 import { mockInterview } from "@/lib/mock/interview";
+import {runAgent} from "@/helper/run_agent";
 
-const USE_MOCK = true;
+const USE_MOCK = false;
 
 
 export async function POST(
@@ -11,7 +12,6 @@ export async function POST(
 ){
   try {
     const body = await req.json();
-
     const { prompt, analysis, model = DEFAULT_ANALYZE_MODEL} = body;
     const apiKey = req.headers.get("x-openai-api-key") || undefined;
     
@@ -32,12 +32,13 @@ export async function POST(
       });
     }
 
-    const result =  await requirementAgent( prompt, analysis, model, apiKey);
+    // const result =  await requirementAgent( prompt, analysis, model, apiKey);
+    const result =  await runAgent("requirement", () => requirementAgent( prompt, analysis, model, apiKey));
 
     return NextResponse.json( result );
 
   } catch(error){
-
+    
     console.error(error);
 
     return NextResponse.json(

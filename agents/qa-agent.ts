@@ -1,13 +1,18 @@
 import { createOpenAIClient } from "@/lib/openai";
+import { DEFAULT_ANALYZE_MODEL } from "@/lib/models";
 
 
 export async function qaAgent(
     specification:string,
+    model?: string,
     apiKey?:string
 ){
+    console.log(`In qaAgent, model :${model}`);
+
     const openai = createOpenAIClient(apiKey);
+
     const response = await openai.responses.create({
-        model:"gpt-5-mini",
+        model: model?model:DEFAULT_ANALYZE_MODEL,
         text:{ format:{ type:"json_object" } },
         input:`
 
@@ -48,10 +53,5 @@ export async function qaAgent(
         `
     });
 
-
-    return JSON.parse(
-    response.output_text
-    );
-
-
+    return JSON.parse( response.output_text );
 }

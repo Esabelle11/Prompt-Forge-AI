@@ -5,8 +5,9 @@ import { parseModelJson } from "@/lib/parse-json";
 import type { AnalysisResult } from "@/types/analysis";
 import { mockAnalysis } from "@/lib/mock/analysis";
 import { analysisAgent } from "@/agents/analysis-agent";
+import {runAgent} from "@/helper/run_agent";
 
-const USE_MOCK = true;
+const USE_MOCK = false;
 
 export async function POST(req: Request) {
   try {
@@ -29,7 +30,9 @@ export async function POST(req: Request) {
       });
     }
 
-    const result =  await analysisAgent( prompt, model, apiKey);
+    // const result =  await analysisAgent( prompt, model, apiKey);
+    const result =  await runAgent("analysis", () => analysisAgent(prompt,model, apiKey));
+    // console.log("result: ", result)
 
     
     if (!result) {
@@ -39,10 +42,11 @@ export async function POST(req: Request) {
       );
     }
 
-    const final_result = parseModelJson<AnalysisResult>(result);
-    return NextResponse.json({ final_result });
+    // const final_result = parseModelJson<AnalysisResult>(result);
+    return NextResponse.json({ result });
 
   } catch (error) {
+    console.log("error: ", error)
     const message = error instanceof Error ? error.message : "Failed to analyze prompt";
     return NextResponse.json({ error: message }, { status: 500 });
   }

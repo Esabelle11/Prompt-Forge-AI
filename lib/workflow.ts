@@ -7,6 +7,7 @@ interface WorkflowOptions {
   prompt:string;
   analysis:any;
   interviewAnswers:any;
+  analyzeModel?:string;
   apiKey?:string;
   onStepChange?:(
     stepId:string,
@@ -44,6 +45,7 @@ export async function runAISoftwareWorkflow({
     prompt,
     analysis,
     interviewAnswers,
+    analyzeModel,
     apiKey,
     onStepChange,
 }:WorkflowOptions){
@@ -66,7 +68,8 @@ export async function runAISoftwareWorkflow({
         {
             prompt,
             analysis,
-            interviewAnswers
+            interviewAnswers,
+            model: analyzeModel,
         },
         headers
     );
@@ -84,7 +87,8 @@ export async function runAISoftwareWorkflow({
     const review = await callAPI(
         "/api/review",
         {
-            specification:compile.specification
+            specification:compile.specification,
+            model: analyzeModel,
         },
         headers
     );
@@ -102,7 +106,8 @@ export async function runAISoftwareWorkflow({
         "/api/consensus",
         {
             specification: compile.specification,
-            reviews: review.reviews
+            reviews: review.reviews,
+            model: analyzeModel,
         },
         headers
     );
@@ -120,7 +125,8 @@ export async function runAISoftwareWorkflow({
     const quality = await callAPI(
         "/api/predict",
         {
-            consensusSpecification: consensus.consensusSpecification
+            consensusSpecification: consensus.consensusSpecification,
+            model: analyzeModel,
         },
         headers
     );
@@ -139,7 +145,8 @@ export async function runAISoftwareWorkflow({
         "/api/document",
         {
             consensusSpecification: consensus.consensusSpecification,
-            qualityReport: quality.qualityReport
+            qualityReport: quality.qualityReport,
+            model: analyzeModel,
         },
         headers
     );

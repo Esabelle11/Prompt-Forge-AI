@@ -1,0 +1,71 @@
+{
+  "score": 72,
+  "issues": [
+    {
+      "title": "Unspecified technology stack and deployment target",
+      "severity": "high",
+      "description": "The prompt says 'modern web technologies' but does not name a frontend framework, backend language/framework, database, hosting/cloud provider, containerization, CI/CD, or deployment target (SaaS multi-tenant vs single-tenant). These choices materially affect architecture, integration choices, and cost."
+    },
+    {
+      "title": "AI features lack technical definition and data sources",
+      "severity": "high",
+      "description": "Core AI features (cost estimation, schedule optimization, script summarization, conflict detection, insights) are described at a high level but missing model types (LLM, ML regression, optimization solver), required training or domain data, expected accuracy, performance constraints, and how AI outputs will be validated/audited."
+    },
+    {
+      "title": "Authentication, authorization and security requirements are vague",
+      "severity": "high",
+      "description": "Authentication and role-based permissions are mentioned but no specifics on authentication method (OAuth2, SSO, SAML), identity providers, session management, audit logging, encryption at rest/in-transit, or compliance/regulatory requirements (e.g., GDPR, IP protection for scripts)."
+    },
+    {
+      "title": "Data model and entities are underspecified",
+      "severity": "medium",
+      "description": "While many domain entities are listed (scripts, actors, crew, schedules, budgets, locations, assets, tasks), the relationships, required fields, versions/auditing, expected file types/size for assets, and retention/backup policies are not defined. This impedes database/schema design."
+    },
+    {
+      "title": "Collaborative workflows and permissions are not detailed",
+      "severity": "medium",
+      "description": "Collaboration features (dashboards, notifications, approvals, comments, timelines) are named but detailed workflows are missing: who can approve what, lifecycle of a task/approval, notification channels, conflict resolution, and real-time vs asynchronous collaboration expectations."
+    },
+    {
+      "title": "Integrations and third-party services are unspecified",
+      "severity": "medium",
+      "description": "No mention of required integrations such as calendar systems, payroll/invoicing, VFX asset storage, location mapping, weather APIs, payment processors, or cloud storage/CDN. These affect API design and authorization scopes."
+    },
+    {
+      "title": "Non-functional requirements are absent",
+      "severity": "medium",
+      "description": "There are no performance, scalability, availability, concurrency, latency, or SLAs defined. Without these, it's impossible to size infrastructure, choose caching strategies, or set monitoring/alerting needs."
+    },
+    {
+      "title": "UI/UX expectations and platform surfaces are vague",
+      "severity": "low",
+      "description": "The prompt asks for a 'modern SaaS application' and 'responsive interface' but lacks information about supported platforms (web only, mobile apps, offline support), accessibility requirements, or sample wireframes/personas that would guide design and implementation."
+    },
+    {
+      "title": "Testing, acceptance criteria and deliverables are undefined",
+      "severity": "low",
+      "description": "No acceptance criteria, test plans, QA requirements, or definition of MVP scope (which features are must-have vs nice-to-have) are provided. This introduces risk in delivery and prioritization."
+    },
+    {
+      "title": "Data privacy, IP protection and legal considerations missing",
+      "severity": "high",
+      "description": "Handling scripts, budgets and personnel data raises legal/IP and privacy issues. The prompt does not mention encryption, access controls for sensitive content, contract/consent management, or copyright protections for scripts and assets."
+    }
+  ],
+  "suggestions": [
+    "Explicitly define the technology stack: frontend framework (React/Vue/Svelte), backend (Node.js/Express, Python/Django, Ruby/Rails, Go), database (Postgres, MongoDB), and preferred cloud provider (AWS/GCP/Azure) and deployment model.",
+    "Specify the AI approach for each feature: e.g., LLM for script summarization, supervised regression for cost estimation (with required labeled dataset), constraint solver/CP-SAT for schedule optimization. Identify available training datasets or plans to gather domain data.",
+    "Provide detailed authentication and authorization requirements: supported identity providers, SSO, roles & permissions matrix, session policies, password rules, MFA, and audit/logging requirements.",
+    "Define the core data model and entities with required fields, relationships, versioning, and attachments (file types, size limits). Provide at least an ERD or a list of entities for the MVP.",
+    "Clarify collaboration workflows and approval flows: who can create/edit projects, approve budgets/schedules, comment visibility, real-time presence expectations, and notification channels (email, SMS, in-app).",
+    "List required external integrations and APIs up-front (calendar, weather, maps, payroll, cloud storage, payment, VFX pipeline tools). For each, indicate whether integration is MVP or deferred.",
+    "Define non-functional requirements: target number of concurrent users/projects, uptime SLA, expected API response times, and retention/backups. Use these to guide scaling and caching choices.",
+    "Specify UI/UX scope: platforms to support (web/tablet/mobile), accessibility (WCAG) needs, sample wireframes or user journeys for 3 main personas (producer, AD, finance).",
+    "Create a prioritized MVP feature list with acceptance criteria for each item (e.g., 'script management: upload .pdf, parse scenes, generate 2-paragraph summary with <= X% hallucination rate').",
+    "Decide on data protection and legal requirements: encryption at rest/in-transit, data residency, audit trails, content ownership, and compliance standards (GDPR, CCPA).",
+    "Identify observability and ops needs: logging, metrics, tracing, alerting, backups, and a runbook for common incidents.",
+    "Provide sample datasets or synthetic examples (scripts, budgets, shooting schedules) to validate AI models and to enable end-to-end integration testing."
+  ],
+  "needsInterview": true,
+  "interviewReason": "Key architectural and product decisions are missing and would materially change implementation: tech stack, AI model approaches and required training data, authentication/authorization and compliance requirements, detailed workflows and MVP scope, integrations and deployment targets. Clarifying these is necessary before implementation can begin."
+}

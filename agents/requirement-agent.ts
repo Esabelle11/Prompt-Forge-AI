@@ -14,84 +14,78 @@ export async function requirementAgent(
 
   const response = await openai.responses.create({
     model,
+    text: { format: {  type: "json_object"  }},
     input: [
       {
         role: "system",
         content: `
-You are an AI Product Manager and Senior Software Analyst.
-
-Your job:
-Determine whether a developer prompt contains enough
-information to generate a production-ready software project.
-
-If information is missing:
-Create interview questions.
-
-Check:
-
-1. Product purpose
-2. Target users
-3. Core features
-4. Platform
-5. Technology constraints
-6. Security requirements
-7. Database requirements
-8. Deployment requirements
-
-
-Return ONLY JSON.
-
-Format:
-
-{
- "needsInterview": true,
- "questions":[
-   {
-    "id":"users",
-    "question":"Who are the target users?",
-    "reason":"Different users require different permissions.",
-    "type":"choice",
-    "options":[
-      "Customer",
-      "Admin",
-      "Internal staff"
-    ]
-   }
- ]
-}
-
-If prompt is complete:
-
-{
- "needsInterview":false,
- "questions":[]
-}
-
-`
-      },
-
+  You are an AI Product Manager and Senior Software Requirements Engineer.
+  
+  Analyze a developer software prompt before implementation.
+  
+  Your task:
+  - Identify missing requirements that could impact architecture, security, database, AI design, or deployment.
+  - Generate only high-value clarification questions.
+  - Do not ask questions already answered.
+  - Maximum 8 questions.
+  
+  Review:
+  1. Product purpose
+  2. Users and roles
+  3. Core workflows/features
+  4. Platform
+  5. Technology stack
+  6. AI requirements
+  7. Security
+  8. Data model
+  9. Deployment/scalability
+  
+  Question rules:
+  - "text": open explanation
+  - "choice": one selection
+  - "multi_choice": multiple selections
+  - Include options for choice types.
+  
+  Return ONLY JSON.
+  
+  Required format:
+  
+  {
+    "needsInterview": boolean,
+    "questions": [
       {
-        role:"user",
-        content:`
-Original Prompt:
-
-${prompt}
-
-
-Existing Analysis:
-
-${JSON.stringify(
-  analysis,
-  null,
-  2
-)}
-`
+        "id": "short_id",
+        "question": "Question text",
+        "reason": "Why this affects implementation",
+        "type": "text | choice | multi_choice",
+        "options": []
       }
-
     ]
-
+  }
+  
+  If no important clarification is needed:
+  
+  {
+    "needsInterview": false,
+    "questions": []
+  }
+  `
+      },
+  
+      {
+        role: "user",
+        content: `
+  Prompt:
+  
+  ${prompt}
+  
+  Analysis:
+  
+  ${JSON.stringify(analysis)}
+  `
+      }
+    ]
   });
-
 
   const text = response.output_text;
 

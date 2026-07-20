@@ -62,6 +62,7 @@ export default function Home(){
       prompt,
       analysis:analysisResult,
       interviewAnswers:answers,
+      analyzeModel,
       apiKey,
       onStepChange(stepId,status){
         updateStep(stepId,status);
@@ -246,7 +247,7 @@ export default function Home(){
 
         { interview &&
           <InterviewPanel
-            questions={ interview.result.questions }
+            questions={ interview.questions }
             onComplete={ async answers=>{
               updateStep(
                 "interview",

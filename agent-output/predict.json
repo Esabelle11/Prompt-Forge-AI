@@ -1,0 +1,59 @@
+{
+  "qualityScore": 68,
+  "confidence": "medium",
+  "risks": [
+    {
+      "category": "Requirements completeness",
+      "severity": "high",
+      "description": "Key contract artifacts required for safe, repeatable implementation are missing: explicit Role & Permission Matrix, full OpenAPI schema, ERD with concrete column types and constraints, and finalized acceptance-test payloads. Without these, generated code will be guesswork on authorization rules, request/response shapes, and DB schemas."
+    },
+    {
+      "category": "Database clarity & RLS",
+      "severity": "high",
+      "description": "High-level table list and patterns are present but column types, sizes, constraints, indexes, FK relationships, and concrete RLS policies are not specified. Generating safe DB migrations and correct RLS policies from this spec risks errors that could lead to cross-tenant data exposure or runtime failures."
+    },
+    {
+      "category": "Security readiness",
+      "severity": "high",
+      "description": "Security goals are well-defined, but many integration details are unspecified: exact auth provider flows (claims shape), session store schema, key rotation procedures, and precise secrets-access patterns. A coding agent may implement insecure defaults (long-lived tokens, secrets in env) unless closed-form guidance and examples are provided."
+    },
+    {
+      "category": "AI / LLM & Compliance",
+      "severity": "medium",
+      "description": "AI Gateway behavioral requirements are comprehensive, yet many operational decisions are left open (choice of provider(s), redaction implementation, contract-negotiation workflow, deterministic fallback implementations). These gaps risk producing a gateway that is functionally incomplete or non-compliant for enterprise tenants."
+    },
+    {
+      "category": "Architecture & operational detail",
+      "severity": "medium",
+      "description": "The architecture is clear at a high level, but concrete deployment topology (cloud vendor choices per component, exact scaling rules, connection pooling config examples, VPC/networking, and IaC snippets) are missing — affecting production readiness, scaling, and cost predictability."
+    },
+    {
+      "category": "Testing & QA automation",
+      "severity": "medium",
+      "description": "Testing strategy is excellent in scope but lacks concrete test fixtures, OpenAPI contract tests, synthetic AI dataset, exact coverage thresholds, and CI job definitions. A coding agent cannot fully wire CI to validate RLS and integration guarantees without these artifacts."
+    },
+    {
+      "category": "Background jobs & idempotency",
+      "severity": "medium",
+      "description": "Worker semantics and queue choice are discussed, but idempotency keys, job payload schemas, DLQ handling policies, and visibility timeout examples are not specified. Implementations risk creating non-idempotent jobs or insufficient DLQ handling under failures."
+    },
+    {
+      "category": "Realtime & concurrency",
+      "severity": "low",
+      "description": "Realtime transport is left pluggable; concurrency semantics (optimistic + advisory locks) are specified conceptually, but precise API contracts for lock acquisition/renewal and presence channels are not defined, which may cause interoperability surprises between client and server code generated separately."
+    }
+  ],
+  "recommendations": [
+    "Produce the missing canonical artifacts before full codegen: Role & Permission Matrix, full OpenAPI v3 spec (request/response schemas), and an ERD + SQL migration scripts with concrete column types, constraints, and FK relationships.",
+    "Embed explicit DB RLS policies as part of migration files (examples for each sensitive table) and include automated RLS unit/integration tests that run in CI to prevent regressions.",
+    "Provide concrete auth/session contract: JWT claim shapes, refresh-token rotation algorithm, Redis session schema, sample revocation flow, and example client flows (login/refresh/logout).",
+    "Deliver a minimal IaC scaffold (Terraform) and deployment topology examples (one for MVP shared-DB + one for per-tenant DB) that include connection pooling (PgBouncer), Redis, and worker groups so codegen can produce deployable manifests.",
+    "Specify AI Gateway interfaces concretely: API schemas, prompt_template model (id + placeholders), PII redaction spec, caching key algorithm, and example fallback behaviors. Include a synthetic dataset and expected AI regression test cases.",
+    "Define job schemas and lifecycle: canonical job payload examples, idempotency key strategy, retry/backoff policy, DLQ criteria, and monitoring/alerting hooks so workers can be implemented robustly.",
+    "Provide a CI pipeline blueprint (GitHub Actions): steps, secrets handling pattern, contract tests integration, and canary/staging promotion flow (including automated backup/restore test jobs).",
+    "Supply representative test fixtures and datasets: sample scripts (various encodings/formats), people/schedule data, and an AI test corpus for hallucination/regression tests; include E2E test scenarios and expected assertions.",
+    "Define performance/load targets with basic workload profiles so autoscaling and rate-limiting thresholds can be implemented and validated (e.g., typical RPS, concurrent realtime sessions, worker throughput).",
+    "Create example implementations/snippets for critical security controls (Secrets Manager integration, KMS envelope encryption example, malware scanning pipeline for worker) to prevent insecure defaults in generated code."
+  ],
+  "readyForCodeGeneration": false
+}

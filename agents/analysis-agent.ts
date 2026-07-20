@@ -9,6 +9,9 @@ export async function analysisAgent(
   apiKey?: string,
 ){
   const openai =createOpenAIClient(apiKey);
+  console.log("analysisAgent")
+  console.log(typeof prompt);
+  console.log(prompt);
 
   const response = await openai.responses.create({
     model,
