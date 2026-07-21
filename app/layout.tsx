@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Prompt Linter",
+  title: "PromptForge-AI",
   description:
     "Improve developer prompts before AI-powered code generation",
 };

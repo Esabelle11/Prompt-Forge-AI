@@ -9,6 +9,26 @@ The goal is simple:
 > **Better specifications produce better software.**
 
 ---
+# Table of Contents
+- [Why I Built This](#why-i-built-this)
+- [The Problem](#the-problem)
+- [The Solution](#the-solution)
+- [Features](#features)
+  - [Prompt Analysis](#prompt-analysis)
+  - [Requirement Interview Agent](#requirement-interview-agent)
+  - [Specification Compiler](#specification-compiler)
+  - [AI Engineering Council](#ai-engineering-council)
+  - [Consensus Engineering Specification](#consensus-engineering-specification)
+  - [Code Generation Quality Predictor](#code-generation-quality-predictor)
+  - [Production README Generator](#production-readme-generator)
+  - [Codex Integration](#codex-integration)
+- [Workflow](#workflow)
+- [Technology Stack](#technology-stack)
+- [Built with OpenAI Codex & GPT-5.6](#built-with-openai-codex--gpt-56)
+- [Why This Matters](#why-this-matters)
+- [Future Roadmap](#future-roadmap)
+- [Vision](#vision)
+---
 
 # Why I Built This
 
@@ -304,6 +324,52 @@ Codex Project Generation
 * OpenAI Responses API
 * GPT-5.6
 * Codex
+
+---
+
+
+# Built with OpenAI Codex & GPT-5.6
+
+PromptForge AI was built around the idea that AI coding agents produce better software when they receive better engineering context.
+
+## How GPT-5.6 Was Used
+
+GPT-5.6 powers the core intelligence layer of PromptForge AI.
+
+It is used for:
+
+### Prompt Analysis Agent
+GPT-5.6 analyzes raw developer ideas and identifies:
+- missing requirements
+- ambiguous specifications
+- potential implementation risks
+- areas requiring clarification
+
+### Requirement Engineering Agent
+GPT-5.6 acts as a software analyst by conducting requirement interviews and converting incomplete ideas into structured requirements.
+
+### Engineering Review Council
+Multiple GPT-5.6-powered agents simulate different engineering roles:
+
+- Architect Agent:
+  Reviews architecture decisions, scalability, and maintainability.
+
+- Security Agent:
+  Reviews authentication, authorization, API security, and potential vulnerabilities.
+
+- QA Agent:
+  Reviews testing strategy, edge cases, and production readiness.
+
+### Specification Compiler
+GPT-5.6 transforms the collected requirements and engineering feedback into a structured implementation specification designed for AI coding agents.
+
+---
+
+## How Codex Was Used
+
+Codex is the final implementation agent in the PromptForge workflow.
+
+Instead of sending Codex an ambiguous user prompt:
 
 ---
 

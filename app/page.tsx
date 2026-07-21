@@ -208,7 +208,7 @@ export default function Home(){
 
     <div className="min-h-screen bg-white">
       <header className="border-b p-6">
-        <h1 className="text-xl font-bold">Prompt Linter AI Engineering System</h1>
+        <h1 className="text-xl font-bold">PromptForge-AI Engineering System</h1>
         <p className="text-sm text-gray-500">From human idea → production specification → AI coding agent</p>
       </header>
 
