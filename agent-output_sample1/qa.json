@@ -1,0 +1,84 @@
+{
+  "agent": "qa",
+  "score": 78,
+  "issues": [
+    {
+      "title": "Timezone, DST and time format handling for schedules and call sheets",
+      "severity": "critical",
+      "description": "Specification does not define timezone handling or canonical time formats for projects, schedules, call sheets, calendar sync, or availability windows. Schedules are date/time-critical (call_time, wrap_time, availability). Missing requirements for how to store and display times (UTC vs local), how to handle daylight savings transitions, per-user vs per-project timezones, and how calendar integrations respect or translate timezones.",
+      "recommendation": "Add explicit requirements: store all timestamps in UTC with localized display per user/org timezone; define per-project timezone and per-user preference; handle DST transitions (document expected behaviour); include acceptance tests that verify schedule correctness across timezone boundaries and a calendar sync round-trip test (create event → synced → update → verify)."
+    },
+    {
+      "title": "Concurrency/conflict resolution and real-time collaboration behaviour",
+      "severity": "critical",
+      "description": "The spec says 'optimistic concurrency controls and conflict notifications' but lacks details on conflict detection/resolution semantics (field-level merge, last-write-wins, explicit locking), UI behaviour when simultaneous edits occur, and API-level versioning tokens. There are no acceptance criteria or tests defining acceptable user experience during conflicting edits.",
+      "recommendation": "Define concrete concurrency model: include version_token on mutating endpoints, document update rejection response and retry guidance, provide per-entity locking option for schedule edits, and specify UI reconciliation flows. Add acceptance criteria and E2E tests: simulate concurrent edits to schedule & scripts and verify conflict detection, notification, and recovery UX."
+    },
+    {
+      "title": "Row-Level Security (RLS), RBAC matrix and API authorization completeness",
+      "severity": "high",
+      "description": "RLS and RBAC are referenced but the permission matrix is missing from the spec. There are no explicit rules for which roles can perform each API action (e.g., who can upload scripts, approve budgets, export assets, or invite users). Acceptance tests reference RLS but details to validate role-specific access are absent.",
+      "recommendation": "Include a complete role-permission matrix mapping roles to allowed actions and DB policies. Add API-level authorization rules in the OpenAPI spec. Add integration tests that assert positive/negative access for each role and RLS policy tests for cross-org protection."
+    },
+    {
+      "title": "Time-to-live, backups/RPO/RTO, and restore acceptance criteria",
+      "severity": "high",
+      "description": "Backups, retention, and restoration are mentioned but lack concrete RTO/RPO targets, retention defaults for audit logs, and acceptance criteria or test procedures for restore verification (only 'test restore monthly' noted).",
+      "recommendation": "Specify RTO and RPO numeric targets (e.g., RPO=24h, RTO=<4h for critical services), retention periods for audit logs and backups, and define restore verification steps and acceptance criteria. Add CI/CD/ops automated restore tests in staging and include them in acceptance criteria."
+    },
+    {
+      "title": "File upload sizing, resumable uploads and large file handling inconsistencies",
+      "severity": "high",
+      "description": "File size limits are inconsistent and incomplete: scripts acceptance says <=20MB; DB section mentions per-file limit 200MB for MVP. There is no spec for resumable uploads, partial failures, virus scanning, thumbnail/preview generation, or large asset lifecycle (VFX placeholders).",
+      "recommendation": "Harmonize file size limits per file type. Define resumable upload protocol (tus, S3 multipart), failure/retry semantics, server-side virus/malware scanning, and preview/transcoding pipelines. Add acceptance criteria for upload success, abort/retry, and preview generation within defined SLAs."
+    },
+    {
+      "title": "AI failure modes, hallucination handling, and measurable AI quality criteria",
+      "severity": "high",
+      "description": "AI components are central but the spec lacks measurable safety/quality thresholds, handling of incorrect/empty/slow AI responses, and behaviour when LLM provider is unavailable. Acceptance criteria for AI outputs are vague (latencies only).",
+      "recommendation": "Define AI SLAs (timeouts, retry/backoff), fallbacks to deterministic behaviour, and measurable quality metrics (e.g., minimum precision/recall for scene extraction on test dataset, maximum allowed hallucination rate). Add explicit UI behaviours for AI warnings, provenance display, and user feedback flows. Create synthetic evaluation datasets with expected outputs and add automated regression tests."
+    },
+    {
+      "title": "Calendar integration sync direction, conflict resolution, and token lifecycle",
+      "severity": "medium",
+      "description": "Calendar integrations are optional but not specified in detail: direction of sync (one-way vs two-way), handling of event edits/deletes, conflict resolution with local changes, token refresh/revocation, and consent/revocation UX are not defined.",
+      "recommendation": "Specify whether initial MVP supports one-way (app → calendar) or two-way sync. Define conflict resolution policy, token refresh handling, and UI for disconnecting/re-authorizing calendars. Add acceptance tests for token expiry, revocation, and event sync correctness."
+    },
+    {
+      "title": "Pagination, filtering, sorting, search and API contract completeness",
+      "severity": "medium",
+      "description": "API endpoints are listed but do not define pagination, filtering, sorting, search semantics, rate-limit response headers, or error codes. Large lists (people, assets, scripts, notifications) need standardized paging approach and query parameters.",
+      "recommendation": "Specify pagination pattern (cursor-based or offset), standard query params for filtering/sorting, default page sizes and max limits, and include these in the OpenAPI spec. Add contract tests verifying pagination, filtering, and error responses."
+    },
+    {
+      "title": "Acceptance criteria gaps for reliability, notifications and observability",
+      "severity": "medium",
+      "description": "Observability and notifications are included, but acceptance criteria lack measurable delivery guarantees for notifications (in-app and email), retry/backoff behaviour, and SLO thresholds besides a general uptime target. No acceptance criteria for log retention or tracing completeness.",
+      "recommendation": "Add measurable acceptance criteria: e.g., 99% of in-app notifications delivered within 5s on nominal load, email delivery retries/callback handling, logging retention duration, tracing spans for AI calls and optimization jobs. Add tests that simulate notification failures and verify retries/alerts."
+    },
+    {
+      "title": "Missing data/model constraints for financials and currency handling",
+      "severity": "medium",
+      "description": "Budget and rates are defined but no specification for currency, exchange rates, rounding, multi-currency projects, tax handling, or vendor payment statuses. Financial auditability (immutable entries, reconciliation) has limited detail.",
+      "recommendation": "Add currency fields, default org currency, currency conversion rules, rounding policy, and how taxes/fees are tracked. Define immutability scope for financial audit logs and acceptance tests for financial reporting and history integrity."
+    },
+    {
+      "title": "Test coverage gaps for external integration failure and degraded modes",
+      "severity": "medium",
+      "description": "Testing strategy covers unit, integration, E2E and load tests, but lacks explicit tests for external service outages (LLM provider, email, maps, calendar), network partitions, worker failures, and retry/backoff logic. Also missing are chaos or fault-injection tests.",
+      "recommendation": "Add fault-injection/chaos tests and contract tests that stub external services to return failures, timeouts, or throttling responses. Define expected fallback behaviours and include them in CI integration tests."
+    },
+    {
+      "title": "Script parsing edge cases and input validation",
+      "severity": "low",
+      "description": "Script parsing requirements are present but do not enumerate handling of non-standard formats, multi-language scripts, corrupted PDFs, scripts without sluglines, or ambiguous scene boundaries. No acceptance tests for parser robustness.",
+      "recommendation": "Define parser input validation rules, fallback heuristics for ambiguous cases, and acceptance tests with diverse script samples (malformed PDFs, mixed encodings, multiple languages). Document maximum file length/page limits and parser failure messages to surface to users."
+    },
+    {
+      "title": "User onboarding, invite, password policies and account lifecycle",
+      "severity": "low",
+      "description": "Auth is defined via Supabase but flows for invites, sign-up restrictions (invite-only orgs), password strength policy, password reset flows, session expiry, and account deactivation are not specified. MFA is 'optional' but no rollout/requirement guidance.",
+      "recommendation": "Document user lifecycle: invite flows, sign-up, password complexity rules, password reset token expiry, session TTLs, optional MFA enrollment process, and admin actions (suspend, deactivate). Add acceptance tests for invite flows, password reset, and MFA enable/disable."
+    }
+  ]
+}

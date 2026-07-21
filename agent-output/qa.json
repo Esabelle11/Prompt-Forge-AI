@@ -1,84 +1,96 @@
 {
   "agent": "qa",
-  "score": 78,
+  "score": 74,
   "issues": [
     {
-      "title": "Timezone, DST and time format handling for schedules and call sheets",
+      "title": "Unspecified behavior when deleting a project that has tasks",
       "severity": "critical",
-      "description": "Specification does not define timezone handling or canonical time formats for projects, schedules, call sheets, calendar sync, or availability windows. Schedules are date/time-critical (call_time, wrap_time, availability). Missing requirements for how to store and display times (UTC vs local), how to handle daylight savings transitions, per-user vs per-project timezones, and how calendar integrations respect or translate timezones.",
-      "recommendation": "Add explicit requirements: store all timestamps in UTC with localized display per user/org timezone; define per-project timezone and per-user preference; handle DST transitions (document expected behaviour); include acceptance tests that verify schedule correctness across timezone boundaries and a calendar sync round-trip test (create event → synced → update → verify)."
+      "description": "The specification requires create/rename/delete projects and that tasks may be assigned to a single project, but it does not define what should happen to tasks when their parent project is deleted. This is a major data-loss / UX ambiguity (delete tasks, cascade, or orphan tasks?).",
+      "recommendation": "Define explicit behavior for project deletion: either (a) cascade-delete tasks with explicit confirmation and an undo window, (b) unassign tasks (set projectId to null) and optionally move to an 'Inbox' or 'Unassigned' view, or (c) offer a user-facing choice. Add acceptance criteria, UI flows, and tests for each option, including confirmations and undo behavior."
     },
     {
-      "title": "Concurrency/conflict resolution and real-time collaboration behaviour",
+      "title": "No concurrency / multi-tab synchronization strategy",
       "severity": "critical",
-      "description": "The spec says 'optimistic concurrency controls and conflict notifications' but lacks details on conflict detection/resolution semantics (field-level merge, last-write-wins, explicit locking), UI behaviour when simultaneous edits occur, and API-level versioning tokens. There are no acceptance criteria or tests defining acceptable user experience during conflicting edits.",
-      "recommendation": "Define concrete concurrency model: include version_token on mutating endpoints, document update rejection response and retry guidance, provide per-entity locking option for schedule edits, and specify UI reconciliation flows. Add acceptance criteria and E2E tests: simulate concurrent edits to schedule & scripts and verify conflict detection, notification, and recovery UX."
+      "description": "Spec assumes local-only storage but does not address concurrent usage (multiple tabs/windows). Without handling, two tabs can diverge, cause lost updates, or show stale data. IndexedDB changes in one tab are not automatically propagated to React state unless explicitly handled.",
+      "recommendation": "Specify a lightweight synchronization approach for same-browser multi-tab scenarios: use BroadcastChannel or storage events to notify other tabs of changes, include an events contract (payloads describing mutation type and entity IDs), and define how optimistic updates / conflicts are resolved. Add tests that simulate multi-tab mutations and ensure UI consistency."
     },
     {
-      "title": "Row-Level Security (RLS), RBAC matrix and API authorization completeness",
+      "title": "Optimistic UI updates lack rollback and error handling requirements",
+      "severity": "critical",
+      "description": "The spec mandates optimistic UI updates for snappy UX but does not define failure modes, rollback semantics, or user feedback when storage operations fail (e.g., quota exceeded, IndexedDB errors). Without this, users may see changes that were never persisted.",
+      "recommendation": "Define error states and rollback semantics: how the UI should revert on write failure, notification messages, retry UX, and telemetry/logging. Add acceptance criteria and tests for failure scenarios (e.g., simulated IndexedDB write errors, quota exceeded)."
+    },
+    {
+      "title": "Missing schema migration/versioning and migration testing",
       "severity": "high",
-      "description": "RLS and RBAC are referenced but the permission matrix is missing from the spec. There are no explicit rules for which roles can perform each API action (e.g., who can upload scripts, approve budgets, export assets, or invite users). Acceptance tests reference RLS but details to validate role-specific access are absent.",
-      "recommendation": "Include a complete role-permission matrix mapping roles to allowed actions and DB policies. Add API-level authorization rules in the OpenAPI spec. Add integration tests that assert positive/negative access for each role and RLS policy tests for cross-org protection."
+      "description": "The specification sets DB name and version but does not define migration strategy for future schema changes (new fields, object store changes) or how to handle upgrades and backward compatibility. No tests for migrations are specified.",
+      "recommendation": "Specify DB migration patterns (onupgradeneeded handlers, transforming existing records, versioned migration steps). Add acceptance criteria and unit/integration tests that run migrations from prior versions to the current schema and verify data integrity."
     },
     {
-      "title": "Time-to-live, backups/RPO/RTO, and restore acceptance criteria",
+      "title": "Undefined behavior for 'position' field and manual ordering",
       "severity": "high",
-      "description": "Backups, retention, and restoration are mentioned but lack concrete RTO/RPO targets, retention defaults for audit logs, and acceptance criteria or test procedures for restore verification (only 'test restore monthly' noted).",
-      "recommendation": "Specify RTO and RPO numeric targets (e.g., RPO=24h, RTO=<4h for critical services), retention periods for audit logs and backups, and define restore verification steps and acceptance criteria. Add CI/CD/ops automated restore tests in staging and include them in acceptance criteria."
+      "description": "position is included for manual ordering but no rules are provided for how position is calculated, re-indexed, or handled for insertions/deletions. Sorting by position, gaps, collisions, and rebalancing strategies are unspecified.",
+      "recommendation": "Define ordering semantics: whether position is a floating-point/decimal to ease insertions, how to handle reordering UI events, when to recompute positions, and how to persist order across projects. Add E2E tests for reordering, insertion at arbitrary positions, and large reorders."
     },
     {
-      "title": "File upload sizing, resumable uploads and large file handling inconsistencies",
+      "title": "No explicit behavior for tasks assigned to non-existent projects",
       "severity": "high",
-      "description": "File size limits are inconsistent and incomplete: scripts acceptance says <=20MB; DB section mentions per-file limit 200MB for MVP. There is no spec for resumable uploads, partial failures, virus scanning, thumbnail/preview generation, or large asset lifecycle (VFX placeholders).",
-      "recommendation": "Harmonize file size limits per file type. Define resumable upload protocol (tus, S3 multipart), failure/retry semantics, server-side virus/malware scanning, and preview/transcoding pipelines. Add acceptance criteria for upload success, abort/retry, and preview generation within defined SLAs."
+      "description": "There is no stated validation when a task references a projectId that does not exist (e.g., stale ID after project deletion or import). This can lead to orphaned references and UI confusion.",
+      "recommendation": "Define validation rules: either prevent saving a task with invalid projectId, auto-nullify projectId and surface to user, or reject operations with a clear error. Add unit tests for creating/updating tasks with invalid projectId and for listing tasks where the project is missing."
     },
     {
-      "title": "AI failure modes, hallucination handling, and measurable AI quality criteria",
-      "severity": "high",
-      "description": "AI components are central but the spec lacks measurable safety/quality thresholds, handling of incorrect/empty/slow AI responses, and behaviour when LLM provider is unavailable. Acceptance criteria for AI outputs are vague (latencies only).",
-      "recommendation": "Define AI SLAs (timeouts, retry/backoff), fallbacks to deterministic behaviour, and measurable quality metrics (e.g., minimum precision/recall for scene extraction on test dataset, maximum allowed hallucination rate). Add explicit UI behaviours for AI warnings, provenance display, and user feedback flows. Create synthetic evaluation datasets with expected outputs and add automated regression tests."
-    },
-    {
-      "title": "Calendar integration sync direction, conflict resolution, and token lifecycle",
+      "title": "Storage fallback and quota behavior not fully specified",
       "severity": "medium",
-      "description": "Calendar integrations are optional but not specified in detail: direction of sync (one-way vs two-way), handling of event edits/deletes, conflict resolution with local changes, token refresh/revocation, and consent/revocation UX are not defined.",
-      "recommendation": "Specify whether initial MVP supports one-way (app → calendar) or two-way sync. Define conflict resolution policy, token refresh handling, and UI for disconnecting/re-authorizing calendars. Add acceptance tests for token expiry, revocation, and event sync correctness."
+      "description": "The spec allows fallback from IndexedDB to localStorage but lacks details: when to fall back, how to detect IndexedDB availability or failure, how to handle storage quota exceeded errors, and migration between storages.",
+      "recommendation": "Document exact fallback criteria, migration steps between IndexedDB and localStorage, and user-visible messaging when storage is full or unavailable. Add tests simulating fallback and quota errors."
     },
     {
-      "title": "Pagination, filtering, sorting, search and API contract completeness",
+      "title": "Date/time handling, formats, and timezone semantics are unspecified",
       "severity": "medium",
-      "description": "API endpoints are listed but do not define pagination, filtering, sorting, search semantics, rate-limit response headers, or error codes. Large lists (people, assets, scripts, notifications) need standardized paging approach and query parameters.",
-      "recommendation": "Specify pagination pattern (cursor-based or offset), standard query params for filtering/sorting, default page sizes and max limits, and include these in the OpenAPI spec. Add contract tests verifying pagination, filtering, and error responses."
+      "description": "dueDate and timestamps are described as ISO timestamps, but there is no guidance on timezone handling, parsing/display formatting, or user expectations for dueDate (date-only vs date-time). This can cause confusion across locales and when computing due date sorting.",
+      "recommendation": "Standardize date handling: decide on UTC storage (ISO 8601 with timezone) vs local-time storage, define display formatting per user's locale, and acceptance criteria for dueDate granularity. Add tests for sorting by dueDate across timezone scenarios and for correctly displaying/round-tripping dates."
     },
     {
-      "title": "Acceptance criteria gaps for reliability, notifications and observability",
+      "title": "Lack of explicit UX for deletion confirmations and undo",
       "severity": "medium",
-      "description": "Observability and notifications are included, but acceptance criteria lack measurable delivery guarantees for notifications (in-app and email), retry/backoff behaviour, and SLO thresholds besides a general uptime target. No acceptance criteria for log retention or tracing completeness.",
-      "recommendation": "Add measurable acceptance criteria: e.g., 99% of in-app notifications delivered within 5s on nominal load, email delivery retries/callback handling, logging retention duration, tracing spans for AI calls and optimization jobs. Add tests that simulate notification failures and verify retries/alerts."
+      "description": "Deleting tasks and projects is allowed, but the spec does not require confirmation dialogs, toast-undo affordances, or recovery options. This increases risk of accidental data loss.",
+      "recommendation": "Specify when to show confirmations (project deletion should require confirmation), and implement a short undo window (e.g., toast with 'Undo' for X seconds) for task and project deletions. Add acceptance criteria and E2E tests for delete + undo flows."
     },
     {
-      "title": "Missing data/model constraints for financials and currency handling",
+      "title": "Acceptance criteria missing for edge cases and non-core flows",
       "severity": "medium",
-      "description": "Budget and rates are defined but no specification for currency, exchange rates, rounding, multi-currency projects, tax handling, or vendor payment statuses. Financial auditability (immutable entries, reconciliation) has limited detail.",
-      "recommendation": "Add currency fields, default org currency, currency conversion rules, rounding policy, and how taxes/fees are tracked. Define immutability scope for financial audit logs and acceptance tests for financial reporting and history integrity."
+      "description": "Acceptance Criteria covers main flows but omits many edge cases: large dataset performance (5k tasks), behavior when storage is corrupted or cleared, multi-tab state, reordering correctness, and fallback behavior for non-supported browsers.",
+      "recommendation": "Extend acceptance criteria to include these edge cases (e.g., app remains responsive with 5k tasks; recover gracefully from storage corruption by offering import/repair). Add corresponding unit/E2E tests and CI checks for these scenarios."
     },
     {
-      "title": "Test coverage gaps for external integration failure and degraded modes",
+      "title": "Testing strategy lacks explicit coverage targets and E2E matrix",
       "severity": "medium",
-      "description": "Testing strategy covers unit, integration, E2E and load tests, but lacks explicit tests for external service outages (LLM provider, email, maps, calendar), network partitions, worker failures, and retry/backoff logic. Also missing are chaos or fault-injection tests.",
-      "recommendation": "Add fault-injection/chaos tests and contract tests that stub external services to return failures, timeouts, or throttling responses. Define expected fallback behaviours and include them in CI integration tests."
+      "description": "The spec suggests 60–70% coverage for core modules but does not define which modules are in-scope for coverage, nor which browsers/devices or test environments the E2E suite should run on (desktop/tablet/phone breakpoints).",
+      "recommendation": "Set clear coverage targets per layer (services >= 80%, components >= 70%) and an E2E matrix (Chrome desktop + Firefox + Safari on macOS, and at least one mobile viewport). Include smoke tests for the deployed artifact in CI prior to release."
     },
     {
-      "title": "Script parsing edge cases and input validation",
+      "title": "Accessibility requirements are vague and incomplete",
+      "severity": "medium",
+      "description": "Spec asks for 'basic WCAG AA-ish patterns' and keyboard focus on primary controls, but does not enumerate keyboard interactions, focus order, ARIA roles, or color contrast requirements. Automated or manual accessibility checks are only lightly mentioned.",
+      "recommendation": "Define concrete accessibility requirements: keyboard shortcuts/behaviors (add task, toggle complete, delete confirmation), required ARIA roles for task list and dialogs, minimum color contrast ratio, and include axe or similar tests in CI and accessibility E2E checks."
+    },
+    {
+      "title": "Search/filter semantics and edge behaviors not fully specified",
       "severity": "low",
-      "description": "Script parsing requirements are present but do not enumerate handling of non-standard formats, multi-language scripts, corrupted PDFs, scripts without sluglines, or ambiguous scene boundaries. No acceptance tests for parser robustness.",
-      "recommendation": "Define parser input validation rules, fallback heuristics for ambiguous cases, and acceptance tests with diverse script samples (malformed PDFs, mixed encodings, multiple languages). Document maximum file length/page limits and parser failure messages to surface to users."
+      "description": "listTasks supports an optional search parameter but the spec doesn't define matching rules (case sensitivity, fuzzy, which fields are searched), nor pagination or result limits when search matches many items.",
+      "recommendation": "Specify search semantics (case-insensitive substring on title and description), introduce optional pagination or virtualized rendering for large result sets, and add tests for search behavior and performance under large datasets."
     },
     {
-      "title": "User onboarding, invite, password policies and account lifecycle",
+      "title": "No import/export/backup facility or data portability guidance",
       "severity": "low",
-      "description": "Auth is defined via Supabase but flows for invites, sign-up restrictions (invite-only orgs), password strength policy, password reset flows, session expiry, and account deactivation are not specified. MFA is 'optional' but no rollout/requirement guidance.",
-      "recommendation": "Document user lifecycle: invite flows, sign-up, password complexity rules, password reset token expiry, session TTLs, optional MFA enrollment process, and admin actions (suspend, deactivate). Add acceptance tests for invite flows, password reset, and MFA enable/disable."
+      "description": "Given local-only storage, users may lose data if they clear browser storage or switch devices. The spec does not provide an export/import or backup mechanism.",
+      "recommendation": "Add an optional JSON export/import API and UI to allow users to backup and restore data. Define acceptance criteria and tests for export/import correctness and version compatibility."
+    },
+    {
+      "title": "UI deep-linking and routing behaviors are underspecified",
+      "severity": "low",
+      "description": "Routing is listed as optional but the spec doesn't define behavior for deep links to a project or task, or what happens on page load with URL params (e.g., ?projectId=...).",
+      "recommendation": "Decide whether to include client-side routes for direct links to projects/tasks. If supported, specify URL schema and add tests for deep-link navigation and proper state hydration from storage."
     }
   ]
 }

@@ -1,78 +1,66 @@
 {
   "agent": "security",
-  "score": 70,
+  "score": 75,
   "issues": [
     {
-      "title": "Insufficient JWT / session lifecycle & revocation controls",
+      "title": "Cross‑Site Scripting (XSS) risk when rendering task/title/description",
       "severity": "critical",
-      "description": "Spec relies on Supabase-issued JWTs but does not define token lifetimes, refresh token rotation, revocation mechanics, or session invalidation. Long-lived or non-revocable tokens would allow compromised tokens to be used across orgs. There's no description of logout, token blacklist, or emergency token revocation for breached keys.",
-      "recommendation": "Define and enforce short JWT lifetimes (e.g., access tokens <= 15 minutes), use refresh tokens with rotation and one-time use. Implement a server-side session store or revocation list so tokens can be invalidated immediately (e.g., on password reset, role change, or account compromise). Ensure logout endpoints and admin ability to revoke all tokens per user/org. Document refresh token expiry and refresh window and protect refresh endpoints with strong anti-replay controls."
+      "description": "The app accepts and stores user-provided text (title, description, project names) and later renders it into the DOM. If values are not always escaped or sanitized (especially if a future feature allows any HTML/rich text), an attacker or malicious payload could inject script/markup that executes in the app context. Because the app persists data locally (IndexedDB/localStorage), an XSS can become persistent and allow reading/writing stored data, modifying the UI, or performing actions on behalf of the user.",
+      "recommendation": "Treat all user content as untrusted. For MVP keep descriptions and titles strictly plain text and always escape/encode before inserting into the DOM (never use innerHTML). If you add rich text later, use a vetted sanitizer library (e.g., DOMPurify) with a strict allowlist and canonicalize input. Apply a strict Content Security Policy (CSP) that disallows inline scripts and only allows scripts from trusted origins. Include tests to verify that attempted script payloads render as escaped text and do not execute."
     },
     {
-      "title": "Row-Level Security / RBAC misconfiguration & authorization bypass risk",
-      "severity": "critical",
-      "description": "Specification mandates RLS and org-scoped data but lacks detail on testing and enforcement patterns. Relying only on client-supplied org_id in URL without server-side enforcement or defense-in-depth risks IDOR where a user can access another org's resources. Complex RBAC logic (roles, multiple permission checks) increases risk of policy gaps.",
-      "recommendation": "Enforce authorization at multiple layers: DB-level RLS + API-level checks. Never trust org_id from the client; derive org_id from authenticated JWT claims and validate it against path params. Implement a canonical authorization middleware that centralizes permission checks, include exhaustive tests for RLS and policy edge cases, and include automated contract tests to verify no cross-org access. Consider isolating high-sensitivity data (financials, PII) into separate schemas or databases for stronger isolation."
-    },
-    {
-      "title": "Untrusted file upload & script parsing risks (RCE, malware, DoS)",
-      "severity": "critical",
-      "description": "Script upload and parsing (PDF/TXT/Fountain) is a core feature. Parsing untrusted files can trigger remote code execution, resource exhaustion, or allow malware to be stored/served. The spec lacks detail on sandboxing, virus scanning, content-type validation, and processing isolation for parsing and thumbnail generation.",
-      "recommendation": "Treat all uploads as untrusted. Implement file type verification (MIME + magic bytes), strict size limits and quotas, virus/malware scanning at upload (ClamAV or cloud malware scanning), and strip/normalize metadata. Parse files in isolated, ephemeral worker containers with resource limits (CPU/memory/timeouts) and minimal privileges; prefer running parsers in separate service accounts or ephemeral pods. Store uploads in private buckets and serve previews via processed, sanitized derivatives. Log and alert on parsing failures and high failure rates (potential attack signs)."
-    },
-    {
-      "title": "AI usage: PII leakage and prompt-injection / provenance gaps",
-      "severity": "critical",
-      "description": "LLM endpoints are used widely and prompts may include PII (scripts often contain personal info). Spec mentions 'sanitize' and provenance but does not require PII redaction before sending to third-party LLMs, nor explicit contractual restrictions with providers about training/retention. Prompt-injection by users (comments or scripts) can manipulate system prompts or leak org data into outputs.",
-      "recommendation": "Implement mandatory PII discovery/redaction or explicit opt-in per org before sending data to any external LLM. Classify and redact sensitive fields (emails, phone numbers, financial identifiers) unless org consents and contract with provider allows. Use hardened prompt templates stored server-side, isolate user-supplied content from system prompts, and apply prompt-sanitization layers to remove embedded control tokens. Log exact prompt IDs and redaction decisions in provenance metadata. Add per-org policy to opt-out of sending data to 3rd-party LLMs and prefer on-prem or private LLMs when required. Require contractual assurances from LLM providers about data usage and retention (no-training clause where needed)."
-    },
-    {
-      "title": "Secrets stored in environment variables without centralized secrets management",
+      "title": "Sensitive data at rest — unencrypted local storage",
       "severity": "high",
-      "description": "Spec suggests environment variables and Vercel secrets for API keys / OAuth secrets. This approach can result in inconsistent rotation, lack of granular access control, or accidental exposure in logs/CI. There's no clear KMS usage or per-org encryption for stored OAuth tokens and API keys saved for integrations.",
-      "recommendation": "Adopt a managed secrets solution (e.g., AWS/GCP Key Management + Secrets Manager, HashiCorp Vault) for all production secrets. Use envelope encryption with a customer-managed key (CMK) for database-stored sensitive tokens (OAuth tokens, third-party API keys) and enforce access control and audit logging on secret access. Ensure CI pipelines do not expose secrets to PR builds or logs. Implement automated secret rotation and provide per-org keys / encryption where required by data residency or compliance."
+      "description": "All user data is stored unencrypted in the browser (IndexedDB or localStorage). If a device or browser profile is compromised, theft occurs, or browser sync is enabled, sensitive personal data (task titles, notes, etc.) can be exposed or uploaded to cloud backups.",
+      "recommendation": "Document the risk in the README/Settings and offer an optional local encryption feature for users who want protection: use the Web Crypto API with a user-supplied passphrase to encrypt payloads before persisting to IndexedDB. Derive keys with PBKDF2 or scrypt/Argon2 (via a well-reviewed lib) and encrypt with AES‑GCM. Clearly explain limitations (lost password = lost data, encryption only local) and do not store passphrases. Also educate users about browser profile sync and backups that may upload data to cloud providers."
     },
     {
-      "title": "Insufficient API abuse & quota protections for expensive AI/optimize endpoints",
-      "severity": "high",
-      "description": "AI summarization, schedule optimization, and conflict detection are computationally expensive and exposed via API. The spec mentions rate limiting but lacks specifics (per-user, per-org quotas, backpressure, job cost accounting). Without strict quotas or billing controls these endpoints can be abused to cause high costs or DoS.",
-      "recommendation": "Implement strict rate limits and quotas at the API gateway level (per-user & per-org). For heavy operations, require enqueueing jobs and return job IDs instead of synchronous processing; enforce worker concurrency limits, per-org daily compute budgets, and graceful backpressure. Instrument cost tracking per job and enable admin controls to throttle or disable heavy endpoints per org. Add CAPTCHA or additional auth for anonymous or invitation flows if exposed publicly."
-    },
-    {
-      "title": "Cross-Site Scripting (XSS) & content injection risks in comments, annotations and AI outputs",
-      "severity": "high",
-      "description": "Users can post comments, annotations, and AI-generated text can be returned into UIs. The spec doesn't define HTML sanitization, output encoding, or Content Security Policy. Attackers could inject scripts or embed malicious links via comments or AI outputs.",
-      "recommendation": "Treat all user and AI-generated text as untrusted. Implement server-side sanitization (strip scripts, dangerous tags) and context-aware output encoding on render. Apply a strong Content Security Policy (CSP) that disallows inline scripts and unsafe-eval. For rich text, use a safe renderer (e.g., sanitized markdown). Mark AI outputs with UI affordances (read-only and provenance) and sanitize them before display. Log suspicious content and provide abuse reporting."
-    },
-    {
-      "title": "Insecure direct object references (IDOR) via org_id or resource paths",
-      "severity": "high",
-      "description": "APIs expose org_id and resource IDs in the path (e.g., /orgs/:orgId/projects/:projectId). If server-side authorization relies solely on path parameters or client-supplied orgId, attackers can enumerate or access other org resources.",
-      "recommendation": "Derive the effective org_id from the authenticated user's JWT and ignore or strictly validate client-provided org_id. Enforce database queries to always use the authenticated org context. Implement parameterized queries and central authorization middleware that checks user roles and resource ownership. Add rate limits and monitoring for sequential ID access patterns to detect enumeration attempts."
-    },
-    {
-      "title": "Backup, key management and data-at-rest protections are underspecified",
+      "title": "Fallback to localStorage increases attack surface and persistence issues",
       "severity": "medium",
-      "description": "Spec states 'encryption at rest via provider defaults' and 'daily logical backups' but lacks requirements for customer-managed keys, backup encryption keys, access controls, and retention/erase guarantees. Backups containing PII or financial data could remain accessible if keys are compromised.",
-      "recommendation": "Require backup encryption using CMKs where possible and ensure backups are access-controlled and audited. Define retention periods and secure deletion procedures for backups required by DSR/erase requests. Store backup logs separately and test restore procedures regularly. Document key rotation and backup re-encryption procedures as part of disaster recovery."
+      "description": "localStorage is synchronous, accessible from any script on the origin, and more likely to be read by third‑party scripts injected into the page (e.g., via compromised third‑party libraries or misconfigured CSP). Using localStorage as a fallback could make sensitive task data trivially accessible to injected scripts and complicate data integrity compared to IndexedDB.",
+      "recommendation": "Only use localStorage as a last-resort fallback and limit the amount/type of data stored there. Prefer IndexedDB for data storage. If localStorage must be used, store only non-sensitive, minimal metadata. Enforce a strict CSP and avoid loading any third-party scripts that could access the origin storage. Consider encrypting data even when stored in localStorage if sensitive."
     },
     {
-      "title": "Audit logging and tamper-resistance not fully specified",
+      "title": "Dependency and supply‑chain risks",
+      "severity": "high",
+      "description": "The specification calls for small dependencies (React, idb, etc.), but even small packages can contain vulnerabilities or be the subject of supply‑chain attacks. Unpinned or automatically updated dependencies can introduce malicious code or regressions.",
+      "recommendation": "Pin dependency versions in package.json and commit the lockfile. Enable automated dependency scanning (Dependabot, Renovate) and CI checks (npm audit, Snyk) for known vulnerabilities. Add a CI job that fails builds on critical/high vulnerabilities. Keep third‑party usage minimal and review new dependencies before adding. Consider verifying package signatures where supported."
+    },
+    {
+      "title": "Secrets management in CI / deployments",
+      "severity": "high",
+      "description": "The build/deploy pipeline (GitHub Actions) will require deploy tokens/credentials for hosting providers. If these secrets are misconfigured, leaked in build logs, or committed into the repo, they can be abused to tamper with production assets or leak code.",
+      "recommendation": "Never commit secrets or tokens to the repository. Store deploy credentials in GitHub Actions Secrets (or equivalent) and restrict access to only required actions. Do not echo secrets to logs. Use least privilege tokens (e.g., deploy-only tokens). Add scanning to CI to detect accidental secrets in commits and enable branch protection. Rotate tokens periodically."
+    },
+    {
+      "title": "Weak input validation and potential prototype pollution / unauthorized field updates",
       "severity": "medium",
-      "description": "Audit logs are required but there is no specification for log integrity, retention, access control, or separation of duties. Without tamper-evident logs, admins or attackers could modify audit trails to cover misuse.",
-      "recommendation": "Implement immutable/tamper-evident audit logs (append-only storage, WORM buckets or chained hashing) with strict access controls and retention policies. Ensure audit logs record read and write access to sensitive resources, who accessed them, and include request context (IP, user agent). Ship security-critical logs to a separate, access-restricted SIEM for long-term storage and monitoring."
+      "description": "Service functions accept Partial<TaskFields> and merge updates into stored objects. If input is not validated/whitelisted, attackers could inject properties like __proto__ or constructor fields, causing prototype pollution or corruption of app state. Additionally malformed data types (e.g., strings instead of booleans) may break logic.",
+      "recommendation": "Validate and whitelist fields accepted by update APIs. Use a schema validator (zod, Joi, or TypeScript runtime checks) to enforce types and permitted keys. When merging updates, do not use naive deep merges that include prototype properties; use safe cloning and explicit assignment of allowed properties. Add unit tests that assert malicious keys and unexpected types are rejected."
     },
     {
-      "title": "CI/CD and dependency/supply-chain exposure",
+      "title": "Lack of CSP / security headers on static hosting",
       "severity": "medium",
-      "description": "Spec includes dependency scanning (Snyk) and GitHub Actions but lacks controls for secrets exposure in CI logs, preventing PR forks from accessing secrets, and pinning and verifying third-party artifacts. CI may run tests with production secrets if not properly segregated.",
-      "recommendation": "Restrict secret access in GitHub Actions: disallow secrets in PR builds from forks, mask secrets in logs, and use short-lived tokens for CI. Pin critical dependencies and enable reproducible builds; use SBOMs and dependency verification. Integrate SCA into CI gating and require vulnerability veto policy for critical CVEs. Use ephemeral credentials for deployment and avoid using long-lived production secrets in CI jobs."
+      "description": "The spec mentions serving over HTTPS and CSP but does not prescribe specific headers. Without a strict CSP, scripts injected via third‑party libs or browser extensions can run and access storage. Missing HTTP security headers (Content-Security-Policy, X-Frame-Options, Referrer-Policy, Strict-Transport-Security) increase risk of clickjacking, data leakage, or man-in-the-middle.",
+      "recommendation": "Configure the hosting provider to serve a strict Content-Security-Policy that disables inline scripts (use nonces/hashes if necessary) and only allows scripts from trusted origins. Add X-Frame-Options: DENY or CSP frame-ancestors. Enable Strict-Transport-Security (HSTS). Use Subresource Integrity (SRI) for any external resources and set conservative Referrer-Policy and Feature-Policy/Permissions-Policy headers as appropriate."
     },
     {
-      "title": "Insufficient protection for stored third-party integration tokens",
+      "title": "Service worker / caching pitfalls",
+      "severity": "medium",
+      "description": "If a service worker or aggressive caching is later added (or host config misconfigured), stale or malicious cached assets could be served. Improperly cached index.html can prevent updates; while a compromised asset could persist and access local data.",
+      "recommendation": "If you add a service worker, follow best practices: use a safe update strategy (prompt users or skipWaiting only with care), validate assets, and keep logic simple. Ensure index.html is served with short TTL and static assets with content-hashed filenames have long TTLs. Include SRI and strong CSP to reduce risk of tampered assets. Add automated tests that confirm new deploys are used after update."
+    },
+    {
+      "title": "Privacy and inadvertent cloud sync / backups",
+      "severity": "medium",
+      "description": "Browser profiles often have sync enabled (Chrome/Firefox), which can upload local storage and IndexedDB data to cloud accounts. Users may assume 'local-only' means data never leaves their device, but browser sync or OS backups can cause uploads.",
+      "recommendation": "Update docs and UI to clearly explain that storage is local to the browser profile but may be synced or backed up depending on user settings. Provide an in-app Privacy/Settings note recommending users disable browser sync for the profile or enable local encryption if they do not want data uploaded. Consider detecting when Profile Sync is enabled and warn users."
+    },
+    {
+      "title": "Insufficient error handling / information leakage in error messages",
       "severity": "low",
-      "description": "Integration tokens (Google Calendar, Maps, payment connectors) are planned to be stored per-org but spec defers to 'encrypted secrets store' without details. If stored in DB encrypted with application keys, a server compromise could expose all tokens.",
-      "recommendation": "Encrypt integration tokens with a dedicated KMS per environment and, where required by contract, per-org envelope keys. Limit token decryption to minimal services and log all accesses. For OAuth, prefer refresh tokens with limited scopes and implement token revocation UI for org admins."
+      "description": "Service/Storage errors may surface stack traces or internal details to users (or logs) which could reveal implementation details that facilitate attacks.",
+      "recommendation": "Ensure service functions return meaningful but opaque error messages to the UI; log detailed errors only to developer-only logs (CI or local dev) but never expose stack traces or internal DB schemas to end users. Sanitize any error information that might be shown in production. Add tests verifying error cases surface user-friendly strings."
     }
   ]
 }

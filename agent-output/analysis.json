@@ -1,71 +1,74 @@
 {
-  "score": 72,
+  "score": 20,
   "issues": [
     {
-      "title": "Unspecified technology stack and deployment target",
+      "title": "Unclear product vision and business objective",
       "severity": "high",
-      "description": "The prompt says 'modern web technologies' but does not name a frontend framework, backend language/framework, database, hosting/cloud provider, containerization, CI/CD, or deployment target (SaaS multi-tenant vs single-tenant). These choices materially affect architecture, integration choices, and cost."
+      "description": "The prompt only states a desire to build a 'simple todo list application' without clarifying purpose, success metrics, target platform (web/mobile/desktop), monetization, or business goals. Without this, prioritization and feature trade-offs cannot be made."
     },
     {
-      "title": "AI features lack technical definition and data sources",
+      "title": "Target users and roles not specified",
       "severity": "high",
-      "description": "Core AI features (cost estimation, schedule optimization, script summarization, conflict detection, insights) are described at a high level but missing model types (LLM, ML regression, optimization solver), required training or domain data, expected accuracy, performance constraints, and how AI outputs will be validated/audited."
+      "description": "No information about who will use the app (individuals, teams, enterprises), user roles (admin, user, guest), or expected user workflows. This affects authentication, permissions, UI complexity, and data model."
     },
     {
-      "title": "Authentication, authorization and security requirements are vague",
+      "title": "Functional requirements are underspecified",
       "severity": "high",
-      "description": "Authentication and role-based permissions are mentioned but no specifics on authentication method (OAuth2, SSO, SAML), identity providers, session management, audit logging, encryption at rest/in-transit, or compliance/regulatory requirements (e.g., GDPR, IP protection for scripts)."
+      "description": "Core features are not enumerated. Missing decisions on create/read/update/delete tasks, due dates, reminders, priorities, tags/projects, recurring tasks, search, sorting, collaboration, offline support, import/export, notifications, etc."
     },
     {
-      "title": "Data model and entities are underspecified",
-      "severity": "medium",
-      "description": "While many domain entities are listed (scripts, actors, crew, schedules, budgets, locations, assets, tasks), the relationships, required fields, versions/auditing, expected file types/size for assets, and retention/backup policies are not defined. This impedes database/schema design."
-    },
-    {
-      "title": "Collaborative workflows and permissions are not detailed",
-      "severity": "medium",
-      "description": "Collaboration features (dashboards, notifications, approvals, comments, timelines) are named but detailed workflows are missing: who can approve what, lifecycle of a task/approval, notification channels, conflict resolution, and real-time vs asynchronous collaboration expectations."
-    },
-    {
-      "title": "Integrations and third-party services are unspecified",
-      "severity": "medium",
-      "description": "No mention of required integrations such as calendar systems, payroll/invoicing, VFX asset storage, location mapping, weather APIs, payment processors, or cloud storage/CDN. These affect API design and authorization scopes."
-    },
-    {
-      "title": "Non-functional requirements are absent",
-      "severity": "medium",
-      "description": "There are no performance, scalability, availability, concurrency, latency, or SLAs defined. Without these, it's impossible to size infrastructure, choose caching strategies, or set monitoring/alerting needs."
-    },
-    {
-      "title": "UI/UX expectations and platform surfaces are vague",
-      "severity": "low",
-      "description": "The prompt asks for a 'modern SaaS application' and 'responsive interface' but lacks information about supported platforms (web only, mobile apps, offline support), accessibility requirements, or sample wireframes/personas that would guide design and implementation."
-    },
-    {
-      "title": "Testing, acceptance criteria and deliverables are undefined",
-      "severity": "low",
-      "description": "No acceptance criteria, test plans, QA requirements, or definition of MVP scope (which features are must-have vs nice-to-have) are provided. This introduces risk in delivery and prioritization."
-    },
-    {
-      "title": "Data privacy, IP protection and legal considerations missing",
+      "title": "Technical stack and platform are unspecified",
       "severity": "high",
-      "description": "Handling scripts, budgets and personnel data raises legal/IP and privacy issues. The prompt does not mention encryption, access controls for sensitive content, contract/consent management, or copyright protections for scripts and assets."
+      "description": "No specification of programming language, frameworks (frontend/backend), runtime, or whether this should be a single-page app, native mobile app, or server-rendered site. This directly impacts implementation and developer choices."
+    },
+    {
+      "title": "No data model or persistence choices",
+      "severity": "high",
+      "description": "Entities (task, user, project, tag, comment) and relationships are not defined. Database selection (SQL/NoSQL/local storage) and schema considerations (syncing, offline-first) are missing."
+    },
+    {
+      "title": "Architecture and integrations not defined",
+      "severity": "medium",
+      "description": "No description of backend/frontend separation, API contracts, third-party integrations (auth providers, push notifications, calendar sync), or deployment targets (cloud provider, containerization)."
+    },
+    {
+      "title": "UI/UX expectations missing",
+      "severity": "medium",
+      "description": "No wireframes, required screens, accessibility needs, supported screen sizes, or interaction details (drag-and-drop, keyboard shortcuts). This makes implementing a coherent interface risky."
+    },
+    {
+      "title": "Security, auth, and privacy not addressed",
+      "severity": "high",
+      "description": "No decisions about authentication (email/password, SSO), authorization (role-based access), data encryption, password policies, GDPR or data retention requirements, or handling of sensitive data."
+    },
+    {
+      "title": "Non-functional requirements omitted",
+      "severity": "medium",
+      "description": "Performance expectations, availability, scalability, expected number of users, concurrency, and offline behavior are not provided. These influence architecture and operational design."
+    },
+    {
+      "title": "Deliverables, testing, and acceptance criteria absent",
+      "severity": "medium",
+      "description": "No definition of deliverables, milestones, QA strategy, unit/integration/end-to-end tests, CI/CD pipeline, documentation, or how success will be accepted and measured."
     }
   ],
   "suggestions": [
-    "Explicitly define the technology stack: frontend framework (React/Vue/Svelte), backend (Node.js/Express, Python/Django, Ruby/Rails, Go), database (Postgres, MongoDB), and preferred cloud provider (AWS/GCP/Azure) and deployment model.",
-    "Specify the AI approach for each feature: e.g., LLM for script summarization, supervised regression for cost estimation (with required labeled dataset), constraint solver/CP-SAT for schedule optimization. Identify available training datasets or plans to gather domain data.",
-    "Provide detailed authentication and authorization requirements: supported identity providers, SSO, roles & permissions matrix, session policies, password rules, MFA, and audit/logging requirements.",
-    "Define the core data model and entities with required fields, relationships, versioning, and attachments (file types, size limits). Provide at least an ERD or a list of entities for the MVP.",
-    "Clarify collaboration workflows and approval flows: who can create/edit projects, approve budgets/schedules, comment visibility, real-time presence expectations, and notification channels (email, SMS, in-app).",
-    "List required external integrations and APIs up-front (calendar, weather, maps, payroll, cloud storage, payment, VFX pipeline tools). For each, indicate whether integration is MVP or deferred.",
-    "Define non-functional requirements: target number of concurrent users/projects, uptime SLA, expected API response times, and retention/backups. Use these to guide scaling and caching choices.",
-    "Specify UI/UX scope: platforms to support (web/tablet/mobile), accessibility (WCAG) needs, sample wireframes or user journeys for 3 main personas (producer, AD, finance).",
-    "Create a prioritized MVP feature list with acceptance criteria for each item (e.g., 'script management: upload .pdf, parse scenes, generate 2-paragraph summary with <= X% hallucination rate').",
-    "Decide on data protection and legal requirements: encryption at rest/in-transit, data residency, audit trails, content ownership, and compliance standards (GDPR, CCPA).",
-    "Identify observability and ops needs: logging, metrics, tracing, alerting, backups, and a runbook for common incidents.",
-    "Provide sample datasets or synthetic examples (scripts, budgets, shooting schedules) to validate AI models and to enable end-to-end integration testing."
+    "Define the product vision: purpose, target platform (web, iOS, Android, desktop), and success metrics (e.g., MAU, retention, time-to-first-task).",
+    "Identify target users and roles: single-user vs. multi-user (teams), admin roles, invited collaborators, and guest access.",
+    "Enumerate functional requirements: task CRUD, due dates, reminders/notifications, priorities, tags/projects, recurrence, subtasks, attachments, comments, search, filters, sorting, and sharing/collaboration.",
+    "Decide authentication and authorization: anonymous usage, email/password, OAuth (Google/Apple), SSO, and role-based permissions.",
+    "Choose a technical stack: frontend framework (React/Vue/Angular/Native), backend language (Node/Python/Go/Ruby), and hosting (serverless, containerized, managed PaaS).",
+    "Specify data persistence: entities and basic schema (Task, User, Project, Tag), database type (Postgres, MySQL, Firestore, SQLite), and offline sync requirements.",
+    "Design high-level architecture: single-page app with REST/GraphQL API, or server-rendered; decide where business logic lives and any third-party services (Push, Email, Calendar sync).",
+    "Provide UI/UX guidelines or wireframes for key screens: task list, task detail/edit, project view, onboarding, settings. List accessibility and responsive requirements.",
+    "State non-functional requirements: expected user scale, response-time targets, uptime/SLA, concurrency, and backup/restore needs.",
+    "Define security/privacy requirements: encryption at rest/in transit, data retention policy, compliance needs (GDPR/CCPA), and logging/auditing.",
+    "Outline testing and QA strategy: unit tests, integration tests, E2E tests, code review process, and CI/CD expectations.",
+    "Specify deployment and operational requirements: cloud provider, container orchestration (K8s), monitoring, logging, and cost constraints.",
+    "List acceptance criteria and milestones: MVP feature set, timeline, and how each feature will be validated.",
+    "If collaboration or real-time features are desired, specify real-time expectations (WebSockets, CRDTs, conflict resolution).",
+    "Decide on offline support and sync strategy if mobile/offline use is needed (local DB, background sync, conflict handling)."
   ],
   "needsInterview": true,
-  "interviewReason": "Key architectural and product decisions are missing and would materially change implementation: tech stack, AI model approaches and required training data, authentication/authorization and compliance requirements, detailed workflows and MVP scope, integrations and deployment targets. Clarifying these is necessary before implementation can begin."
+  "interviewReason": "The prompt is too high-level and lacks crucial details that affect architecture and implementation: target users and roles, platform (web/mobile), concrete feature list, technical stack choices, data model and persistence, authentication/authorization, non-functional requirements (scale, performance), and acceptance criteria. These gaps would significantly change design decisions and must be clarified before coding can begin."
 }

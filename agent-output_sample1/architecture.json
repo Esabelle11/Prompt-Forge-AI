@@ -1,0 +1,78 @@
+{
+  "agent": "architect",
+  "score": 78,
+  "issues": [
+    {
+      "title": "Ambiguous tenancy/isolation model vs implementation",
+      "severity": "critical",
+      "description": "The spec claims single-tenant per studio but the implementation plan uses a shared Supabase (single Postgres) with org_id scoping + RLS and optional separate schemas/buckets. This is ambiguous and risky: shared DB with RLS has a larger blast radius, complicates strict data residency/regulatory requirements, increases risk of cross-tenant data leakage (misconfigured RLS), and makes per-tenant SLAs/restore/retention harder.",
+      "recommendation": "Decide and document the tenancy model up-front. For true single-tenant guarantees or per-region residency, provision separate DB instances/projects/buckets per org (or at minimum separate schemas + dedicated buckets + strict network isolation). If using a shared DB, define hardened RLS policies, automated policy tests, tenant-aware backups/restores, and an operational playbook for tenant isolation incidents. Add IaC modules to provision per-org resources when required and include tenant lifecycle (provision/deprovision) automation."
+    },
+    {
+      "title": "Insufficient backup/erase strategy for GDPR & legal holds",
+      "severity": "critical",
+      "description": "Daily logical backups and storage snapshots are noted, but the spec lacks a precise design for how to permanently delete a tenant's PII/data from backups or to honor legal holds. Restoring a single tenant from shared backups is non-trivial. This risks non-compliance with deletion/GDPR/CCPA requests and complicates data retention policies.",
+      "recommendation": "Define per-tenant backup granularity and retention policies. Use backup tooling that supports per-database or per-schema restores, tag backups by tenant where possible, and document an erase workflow that includes removing copies from backups or applying legal-hold exceptions. Consider immutable audit logs but ensure PII removal processes are mapped to backups. If strict deletion is required, prefer separate DB instances or exportable per-tenant datasets to facilitate removal."
+    },
+    {
+      "title": "LLM cost, rate-limiting, caching and safety controls are underspecified",
+      "severity": "high",
+      "description": "AI features (LLM calls) are core to the product and can generate high and variable cost and latency. The spec lacks detailed controls for per-org cost limits, request batching, prompt/token size management, caching of results, mitigation of model hallucinations in numeric/financial contexts, and quotas to prevent runaway costs or abuse.",
+      "recommendation": "Implement an AI gateway layer that enforces per-org quotas, per-user rate limits, token/execution caps, and caching of deterministic outputs (e.g., summaries, previously computed estimates). Instrument LLM calls with cost accounting and alerts. Add deterministic fallback behavior when LLMs are unavailable and human-in-the-loop approval for AI-generated budgets/decisions. Add safety filters, provenance metadata and an audit trail; expose usage dashboards and automatic budget caps per tenant."
+    },
+    {
+      "title": "Asset upload & processing incompatible with serverless function limits",
+      "severity": "high",
+      "description": "Spec proposes serverless Node API (Vercel) but also large uploads (200MB) and heavy processing (PDF parsing, thumbnails). Serverless functions commonly have request size and timeout limits and limited ephemeral disk — this will break direct uploads and processing approaches.",
+      "recommendation": "Use signed direct-to-storage uploads (pre-signed S3/Supabase URLs) from the client to storage and offload processing (PDF parsing, thumbnail generation, video transcodes) to background workers or managed serverless processors with adequate CPU/memory. Store processed artifacts in a CDN and keep small metadata in DB. Ensure upload authorization and virus scanning step in processing pipeline."
+    },
+    {
+      "title": "Realtime design and concurrent editing model are underspecified",
+      "severity": "high",
+      "description": "Requirements call for <2s in-session updates and optimistic concurrency controls for multi-user schedule editing. Optimistic concurrency with naive last-write-wins will result in poor UX for collaborative editing of schedules (drag/drop). Supabase Realtime/Pusher scaling and per-channel limits are not addressed.",
+      "recommendation": "Clarify collaboration model: if multiple simultaneous fine-grained edits are expected, adopt CRDTs or operational transforms for schedule documents or implement server-side locking/lease-based editing for schedule rows. Use presence channels, delta updates, and batching. Validate Supabase Realtime limits; consider an enterprise pub/sub (e.g., Redis pub/sub, Kafka, Ably) or hosted realtime service with documented scaling characteristics and backpressure handling."
+    },
+    {
+      "title": "Background job queue, retry, idempotency and visibility not defined",
+      "severity": "medium",
+      "description": "Long-running tasks (script parsing, CP-SAT optimization, AI batch jobs) are required, but queue selection and operational semantics (visibility timeouts, dead letter queues, idempotency, monitoring) are not specified. Serverless background functions were suggested but need durable queue guarantees.",
+      "recommendation": "Select a battle-tested queued system (Redis + BullMQ/Queuemaster, or cloud tasks like AWS SQS+Lambda/Cloud Tasks) and design idempotent workers, DLQs, exponential backoff, and visibility/timeouts. Add job monitoring and replay capabilities, job provenance/trace IDs, and capacity autoscaling for workers. Document SLAs for job completion and failure modes."
+    },
+    {
+      "title": "Search and data model for scripts/scenes likely to underperform at scale",
+      "severity": "medium",
+      "description": "Storing parsed_json and full scripts as JSON blobs without dedicated search/indexing will cause slow queries for text search and analytics. Also, scene-level fields should be normalized for efficient querying (schedules, estimates, analytics).",
+      "recommendation": "Normalize critical entities (scenes) into dedicated relational tables and maintain a tsvector column for full-text search in Postgres, or add OpenSearch/Elasticsearch for richer search and analytics. Index frequently queried fields (org_id, project_id, scene_number, slugline, page counts) and maintain materialized views for dashboard aggregates."
+    },
+    {
+      "title": "Observability and distributed tracing across serverless, workers and LLM calls is incomplete",
+      "severity": "medium",
+      "description": "Observability requirements exist but the spec does not mandate a tracing solution that ties frontend requests, backend APIs, background jobs, and external LLM calls together. Without correlated tracing it will be hard to diagnose latency/availability issues or AI-related failures.",
+      "recommendation": "Adopt OpenTelemetry for traces/metrics/logs across frontend (browser), API gateway, background workers and optimization microservice. Ensure each LLM call, job enqueue, and response carries a correlation id/prompt id and is visible in traces and SLO dashboards. Configure Sentry for errors and integrate metrics into Grafana/hosted observability with alerts mapped to SLOs."
+    },
+    {
+      "title": "Secrets & per-org credential storage approach is weak",
+      "severity": "medium",
+      "description": "Storing per-org OAuth tokens/API keys in environment variables or Supabase secrets is suggested, but this is insecure and does not scale for many tenants or rotation/revocation requirements.",
+      "recommendation": "Use a proper secrets store (AWS Secrets Manager, Azure Key Vault, or HashiCorp Vault) for per-org encrypted secrets with KMS-backed encryption, access auditing, and rotation APIs. Encrypt tokens at rest in the DB with an application-level encryption key and restrict access via IAM/roles."
+    },
+    {
+      "title": "Per-region deployment and Supabase capabilities are not validated",
+      "severity": "medium",
+      "description": "Data residency per contract is required, but the spec assumes Supabase can easily provide per-region deployment. In practice, provisioning and operating many region-specific Supabase instances (and associated storage, realtime services) introduces operational complexity and cost.",
+      "recommendation": "Assess provider support for per-region tenancy and automation to provision region-specific infrastructure. If strict per-region tenancy is needed, automate provisioning with IaC (Terraform) and consider using cloud-native DB instances directly when Supabase cannot meet region/residency needs. Define operational cost/scale for per-region instances in the pricing model."
+    },
+    {
+      "title": "API performance risks from serverless cold starts and DB connection limits",
+      "severity": "low",
+      "description": "Vercel serverless functions + Postgres can run into connection limits and cold starts causing latency spikes. The spec targets median API latency < 200–300 ms which may be hard to guarantee in serverless if many concurrent requests spawn connections.",
+      "recommendation": "Use a connection pool proxy (PgBouncer) or a serverless-friendly Postgres client + connection pooling strategy (e.g., Supabase edge functions, server components). For latency-sensitive endpoints keep warm or use a managed Node service for critical endpoints. Add caching layer (Redis) for hot reads and consider CDN for static assets and AI response caching."
+    },
+    {
+      "title": "Concurrency & editor conflict model for schedule editor is underspecified",
+      "severity": "low",
+      "description": "Only optimistic concurrency + conflict notifications are mentioned. For drag-and-drop schedule editing, users expect near-real-time merge behavior and minimal manual conflict resolution.",
+      "recommendation": "Define conflict resolution UX and algorithms up-front: e.g., field-level locking, operational transforms for schedule documents, or offer per-item optimistic updates with automatic merge heuristics. Provide clear UI to show conflicting edits and last-writer information, and run automated tests simulating high-concurrency edits."
+    }
+  ]
+}

@@ -1,59 +1,61 @@
 {
-  "qualityScore": 68,
+  "qualityScore": 75,
   "confidence": "medium",
   "risks": [
     {
-      "category": "Requirements completeness",
+      "category": "Cross-tab conflict resolution",
       "severity": "high",
-      "description": "Key contract artifacts required for safe, repeatable implementation are missing: explicit Role & Permission Matrix, full OpenAPI schema, ERD with concrete column types and constraints, and finalized acceptance-test payloads. Without these, generated code will be guesswork on authorization rules, request/response shapes, and DB schemas."
+      "description": "The spec mandates BroadcastChannel + storage-event fallback and idempotent application of mutation events, but it does not define a deterministic conflict resolution policy (e.g., last-write-wins vs. causal ordering vs. per-field merges). Without this, concurrent edits across tabs can lead to lost updates or flip-flopping state."
     },
     {
-      "category": "Database clarity & RLS",
+      "category": "Migration & rebalance algorithm detail",
       "severity": "high",
-      "description": "High-level table list and patterns are present but column types, sizes, constraints, indexes, FK relationships, and concrete RLS policies are not specified. Generating safe DB migrations and correct RLS policies from this spec risks errors that could lead to cross-tenant data exposure or runtime failures."
+      "description": "DB migration and position rebalancing are called out, but the spec lacks concrete thresholds and algorithms (e.g., min allowed delta between positions before rebalance, exact resequencing step value, migration rollback instrumentation). Implementing safe, tested migrations requires these specifics to avoid data loss."
     },
     {
-      "category": "Security readiness",
+      "category": "IndexedDB/browser edge cases",
       "severity": "high",
-      "description": "Security goals are well-defined, but many integration details are unspecified: exact auth provider flows (claims shape), session store schema, key rotation procedures, and precise secrets-access patterns. A coding agent may implement insecure defaults (long-lived tokens, secrets in env) unless closed-form guidance and examples are provided."
+      "description": "IndexedDB availability and quota failure handling are required, but browser-specific failure modes (Safari private mode limits, Chrome quota behaviors, file system-backed IndexedDB differences) are complex. The spec requires test coverage, but does not prescribe deterministic fallback/time-to-notify strategies; these are critical for reliability."
     },
     {
-      "category": "AI / LLM & Compliance",
+      "category": "Local encryption operational detail",
       "severity": "medium",
-      "description": "AI Gateway behavioral requirements are comprehensive, yet many operational decisions are left open (choice of provider(s), redaction implementation, contract-negotiation workflow, deterministic fallback implementations). These gaps risk producing a gateway that is functionally incomplete or non-compliant for enterprise tenants."
+      "description": "Optional encryption is specified at a high level, but important parameters are unspecified (KDF choice and iterations, salt & IV handling, key derivation storage of metadata, clear UX for key change/loss). These omissions can cause incompatible exports/imports or insecure defaults if implemented by an agent without cryptography expertise."
     },
     {
-      "category": "Architecture & operational detail",
+      "category": "Undo & optimistic-update persistence",
       "severity": "medium",
-      "description": "The architecture is clear at a high level, but concrete deployment topology (cloud vendor choices per component, exact scaling rules, connection pooling config examples, VPC/networking, and IaC snippets) are missing — affecting production readiness, scaling, and cost predictability."
+      "description": "Undo semantics and optimistic rollback are specified, but persistence semantics across reloads and multi-tab scenarios are not fully defined (e.g., should soft-deletes survive a page reload during undo window, how undo tokens are synchronized across tabs). Lack of specifics can cause inconsistent user experience."
     },
     {
-      "category": "Testing & QA automation",
+      "category": "Import/Export conflict handling",
       "severity": "medium",
-      "description": "Testing strategy is excellent in scope but lacks concrete test fixtures, OpenAPI contract tests, synthetic AI dataset, exact coverage thresholds, and CI job definitions. A coding agent cannot fully wire CI to validate RLS and integration guarantees without these artifacts."
+      "description": "Import behavior references validation and migrations but does not define ID collision / deduplication policy, merge vs replace semantics, or preview/merge UI. These gaps can lead to accidental data loss or confusing import flows."
     },
     {
-      "category": "Background jobs & idempotency",
-      "severity": "medium",
-      "description": "Worker semantics and queue choice are discussed, but idempotency keys, job payload schemas, DLQ handling policies, and visibility timeout examples are not specified. Implementations risk creating non-idempotent jobs or insufficient DLQ handling under failures."
-    },
-    {
-      "category": "Realtime & concurrency",
+      "category": "Service worker update UX and safety",
       "severity": "low",
-      "description": "Realtime transport is left pluggable; concurrency semantics (optimistic + advisory locks) are specified conceptually, but precise API contracts for lock acquisition/renewal and presence channels are not defined, which may cause interoperability surprises between client and server code generated separately."
+      "description": "SW is optional and guidelines are given, but the exact caching strategy (cache-first vs network-first for app shell and for assets), update notification to user, and migration of cached assets are not prescriptive. Mistakes here cause stale UI or confusing update behavior."
+    },
+    {
+      "category": "Testing realism & CI resource needs",
+      "severity": "low",
+      "description": "The test matrix and coverage targets are appropriate, but running cross-browser E2E (Playwright) on PRs and maintaining 5k-item performance tests will require CI resources and orchestration not fully detailed in the spec (parallelization, test flakiness mitigation, costs)."
     }
   ],
   "recommendations": [
-    "Produce the missing canonical artifacts before full codegen: Role & Permission Matrix, full OpenAPI v3 spec (request/response schemas), and an ERD + SQL migration scripts with concrete column types, constraints, and FK relationships.",
-    "Embed explicit DB RLS policies as part of migration files (examples for each sensitive table) and include automated RLS unit/integration tests that run in CI to prevent regressions.",
-    "Provide concrete auth/session contract: JWT claim shapes, refresh-token rotation algorithm, Redis session schema, sample revocation flow, and example client flows (login/refresh/logout).",
-    "Deliver a minimal IaC scaffold (Terraform) and deployment topology examples (one for MVP shared-DB + one for per-tenant DB) that include connection pooling (PgBouncer), Redis, and worker groups so codegen can produce deployable manifests.",
-    "Specify AI Gateway interfaces concretely: API schemas, prompt_template model (id + placeholders), PII redaction spec, caching key algorithm, and example fallback behaviors. Include a synthetic dataset and expected AI regression test cases.",
-    "Define job schemas and lifecycle: canonical job payload examples, idempotency key strategy, retry/backoff policy, DLQ criteria, and monitoring/alerting hooks so workers can be implemented robustly.",
-    "Provide a CI pipeline blueprint (GitHub Actions): steps, secrets handling pattern, contract tests integration, and canary/staging promotion flow (including automated backup/restore test jobs).",
-    "Supply representative test fixtures and datasets: sample scripts (various encodings/formats), people/schedule data, and an AI test corpus for hallucination/regression tests; include E2E test scenarios and expected assertions.",
-    "Define performance/load targets with basic workload profiles so autoscaling and rate-limiting thresholds can be implemented and validated (e.g., typical RPS, concurrent realtime sessions, worker throughput).",
-    "Create example implementations/snippets for critical security controls (Secrets Manager integration, KMS envelope encryption example, malware scanning pipeline for worker) to prevent insecure defaults in generated code."
+    "Define a deterministic cross-tab conflict resolution strategy (for example: per-entity last-write-wins using op timestamps + opId tie-breaker, with an option to surface merge conflicts to the user). Document message ordering guarantees and how to handle out-of-order or delayed messages.",
+    "Specify concrete rebalance/migration parameters: minimum allowed delta between positions before rebalance, rebalancing step (e.g., 1000), and a safe resequence algorithm with sample pseudocode. Add unit tests explicitly exercising precision edge-cases.",
+    "Provide exact IndexedDB fallback and notification flows: detect failure modes (open error, quota write failures), define immediate user-facing messages, and a deterministic fallback policy (in-memory -> localStorage only after explicit consent). Include Playwright test cases that simulate these failures.",
+    "Lock down encryption parameters in the spec: choose PBKDF2 iterations (or Argon2/scrypt), salt length, key length, AES-GCM IV handling, and a metadata format for encrypted exports. Add cryptographic unit tests and a clear UX warning about irrecoverable loss.",
+    "Clarify undo semantics across reloads and tabs: specify whether soft-deletes persist to storage until undo window expires, how undo tokens are stored and synchronized, and what happens if a tab closes during the undo window. Add integration tests for these scenarios.",
+    "Define import conflict resolution policies (merge by id, dedupe by checksum, or allow user to choose replace/merge) and implement a preview/dry-run mode in the UI. Add zod schemas and deterministic ID collision tests.",
+    "Provide a canonical BroadcastChannel message handling sequence with timestamps, sourceId ignore logic, and an idempotency mechanism (opId tracking). Include tests that send out-of-order messages and assert correct final state.",
+    "Provide example CI GitHub Actions workflow(s) in the repo (lint → unit tests → build → bundle-size check → security scan → E2E matrix → deploy). Include caching and parallelization hints to manage runtime and cost.",
+    "Add explicit SW caching strategy and update UX to the spec (e.g., cache-first for static assets, network-first for HTML, show banner prompting users to refresh when new SW is available). Include tests to ensure no stale assets are served on deploy.",
+    "Add a small, opinionated UI/UX appendix for critical flows: exact fields and validation messages for create/edit task/project, undo toast design and default timeout (e.g., 8s), confirmation dialog copy for destructive actions, and import preview UX. This reduces ambiguity for a coding agent producing UI.",
+    "Provide sample migration test fixtures and a migration runner used in unit tests so an implementation can be validated from version N→N+1 automatically.",
+    "Document exact bundle-size threshold in CI config and list of allowed third-party dependencies with upper-version bounds to make bundle budget enforceable."
   ],
   "readyForCodeGeneration": false
 }

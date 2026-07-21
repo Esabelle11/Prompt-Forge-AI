@@ -42,6 +42,7 @@ export default function Home(){
   const [loading,setLoading] = useState(false);
   const [error,setError] = useState<string|null>(null);
   const [workflowSteps,setWorkflowSteps] = useState( () => INITIAL_WORKFLOW_STEPS.map(step=>({ ...step})));
+
   
   const handleApiKeyChange = useCallback( (key:string)=>{
      setApiKey(key);},[]);
@@ -57,6 +58,7 @@ export default function Home(){
     analysisResult:AnalysisResult,
     answers:any=null
   ){
+    setLoading(true);
 
     const workflow = await runAISoftwareWorkflow({
       prompt,
@@ -74,7 +76,7 @@ export default function Home(){
   setConsensus(workflow.consensus);
   setQuality(workflow.quality);
   setProductionPrompt(workflow.productionPrompt);
-
+  setLoading(false);
   }
 
   function resetWorkflow() {
@@ -101,6 +103,7 @@ export default function Home(){
     setLoading(true);
     setError(null);
     resetWorkflow();
+    updateStep("analysis","running");
 
     try{
       const res = await fetch("/api/analyze",{
@@ -248,6 +251,7 @@ export default function Home(){
         { interview &&
           <InterviewPanel
             questions={ interview.questions }
+            loading={loading}
             onComplete={ async answers=>{
               updateStep(
                 "interview",

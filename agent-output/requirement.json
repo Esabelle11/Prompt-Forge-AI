@@ -2,219 +2,118 @@
   "needsInterview": true,
   "questions": [
     {
-      "id": "platform",
-      "question": "What platforms should the MVP support?",
-      "reason": "Platform choice affects UI architecture, responsiveness, offline support, and deployment decisions.",
+      "id": "target_users",
+      "question": "Who are the target users and roles for the app?",
+      "reason": "Single-user vs team/enterprise and required roles (admin, owner, collaborator, guest) determine auth, data model, permissions, and collaboration features.",
       "type": "choice",
       "options": [
-        "Web only",
-        "Web + tablet responsive",
-        "Web + mobile app",
-        "Web + mobile + tablet"
+        "Individual / single-user (personal use)",
+        "Multi-user teams with sharing and assignments",
+        "Enterprise with organizations, admin roles and SSO",
+        "Public/shared lists (no auth required)",
+        "Other (please describe)"
       ]
     },
     {
-      "id": "tech_stack_frontend",
-      "question": "Which frontend framework should we use?",
-      "reason": "The frontend framework determines component architecture, state management, and build tooling.",
-      "type": "choice",
+      "id": "platforms",
+      "question": "Which platforms do you need to support for the initial release?",
+      "reason": "Platform choice (web SPA, native mobile, PWA, desktop) directly impacts frontend framework, offline/storage options, push notifications, and deployment pipeline.",
+      "type": "multi_choice",
       "options": [
-        "React",
-        "Vue",
-        "Angular",
-        "Svelte",
-        "Other"
-      ]
-    },
-    {
-      "id": "tech_stack_backend",
-      "question": "Which backend technology should we use?",
-      "reason": "Backend choice affects API design, scalability, developer workflow, and AI integration.",
-      "type": "choice",
-      "options": [
-        "Node.js",
-        "Python/Django",
-        "Python/FastAPI",
-        "Ruby on Rails",
-        "Go",
-        "Other"
-      ]
-    },
-    {
-      "id": "database",
-      "question": "What database should the MVP use?",
-      "reason": "Database selection affects schema design, reporting, file metadata, and transactional workflows.",
-      "type": "choice",
-      "options": [
-        "PostgreSQL",
-        "MySQL",
-        "MongoDB",
-        "Firestore",
-        "Supabase"
-      ]
-    },
-    {
-      "id": "deployment",
-      "question": "Where should the platform be deployed?",
-      "reason": "Deployment target influences infrastructure, security, scaling, and operational setup.",
-      "type": "choice",
-      "options": [
-        "AWS",
-        "Azure",
-        "Google Cloud",
-        "Vercel + managed backend",
-        "On-premises",
-        "Other"
-      ]
-    },
-    {
-      "id": "product_scope",
-      "question": "What is the primary purpose and MVP outcome you want first?",
-      "reason": "The product purpose is broad; defining the MVP outcome helps prioritize features and avoid scope creep.",
-      "type": "text"
-    },
-    {
-      "id": "users",
-      "question": "Who are the target users for the MVP, and should all listed roles be included from day one?",
-      "reason": "Different user types need different permissions and workflows.",
-      "type": "choice",
-      "options": [
-        "Producers",
-        "Directors",
-        "Assistant directors",
-        "Finance teams",
-        "Editors",
-        "Crew members",
-        "All of the above"
+        "Web (SPA)",
+        "Progressive Web App (PWA)",
+        "iOS native",
+        "Android native",
+        "Desktop (Electron or similar)",
+        "Backend/API only (no UI)",
+        "Not decided / other"
       ]
     },
     {
       "id": "core_features",
-      "question": "Which core features are required for the MVP?",
-      "reason": "The prompt lists many capabilities, but the initial release scope needs to be prioritized.",
+      "question": "Which features must the MVP include (pick all that apply or add others)?",
+      "reason": "Functional scope (CRUD, reminders, recurrence, subtasks, attachments, sharing, search, offline) determines schema, APIs, background jobs, and priority of engineering effort.",
       "type": "multi_choice",
       "options": [
-        "Script management",
-        "Actor and crew management",
-        "Shooting schedules",
-        "Budgeting",
-        "Filming locations",
-        "Production assets",
-        "Post-production tasks",
-        "Dashboards",
-        "Notifications",
-        "Approvals",
-        "Comments",
-        "Shared timelines",
-        "AI cost estimation",
-        "AI schedule optimization",
-        "AI script summarization",
-        "AI conflict detection",
-        "AI production reports",
-        "Analytics"
+        "Basic task CRUD and lists/projects",
+        "Due dates & reminders/notifications",
+        "Recurring tasks",
+        "Subtasks/checklists",
+        "Tags/categories and filters/search",
+        "Attachments (files/images)",
+        "Comments/activity history",
+        "Task assigning / sharing / collaboration",
+        "Import/export (CSV, iCal)",
+        "Offline support / local sync",
+        "Push notifications / emails",
+        "Real-time collaboration (live updates)",
+        "Other (please describe)"
       ]
     },
     {
-      "id": "ai_approach",
-      "question": "How should the AI features be implemented?",
-      "reason": "Different AI tasks require different model types, data sources, and validation approaches.",
+      "id": "authentication",
+      "question": "What authentication and user account flows should be supported?",
+      "reason": "Auth choices (anonymous, email/password, OAuth providers, SSO) affect user onboarding, security requirements, third-party integrations, and session management.",
       "type": "multi_choice",
       "options": [
-        "Use a hosted LLM API for summarization and insights",
-        "Build custom ML models for cost estimation",
-        "Use optimization/constraint solving for schedules",
-        "Use rule-based logic for conflict detection",
-        "Use a mix of hosted AI and custom models",
-        "Not sure"
+        "No auth / anonymous local-only",
+        "Email + password (own auth)",
+        "OAuth providers (Google, Apple, GitHub)",
+        "Enterprise SSO (SAML/OIDC)",
+        "Magic links / passwordless",
+        "Social login + email",
+        "Other (please describe)"
       ]
     },
     {
-      "id": "auth",
-      "question": "What authentication method should the platform support?",
-      "reason": "Authentication strategy affects security, user onboarding, and enterprise readiness.",
+      "id": "persistence_scale",
+      "question": "What are the expected data persistence and scale requirements? (e.g., per-user data size, estimated MAU, preference for SQL vs NoSQL vs local device DB)",
+      "reason": "Expected scale and storage model influence database selection (Postgres, Firestore, SQLite), schema design for tasks/projects, indexing/search strategy, and cost/ops considerations.",
+      "type": "text",
+      "options": []
+    },
+    {
+      "id": "notifications_integrations",
+      "question": "Which notification channels and third‑party integrations are required at launch?",
+      "reason": "Push/email/SMS/calendar sync/webhooks require external services, background workers, permission flows, and affects architecture and cost.",
+      "type": "multi_choice",
+      "options": [
+        "Email notifications",
+        "Push notifications (mobile/web)",
+        "SMS",
+        "Calendar sync (Google/Outlook iCal)",
+        "Webhooks / API integrations",
+        "None at launch / optional later",
+        "Other (please describe)"
+      ]
+    },
+    {
+      "id": "offline_realtime",
+      "question": "Do you need offline-first behavior and/or realtime collaboration, and what conflict-resolution model do you expect?",
+      "reason": "Offline sync and real-time collaboration (WebSockets, CRDTs, operational transforms) significantly affect client architecture, sync logic, and backend infrastructure.",
       "type": "choice",
       "options": [
-        "Email/password",
-        "Google OAuth",
-        "Microsoft OAuth",
-        "SAML/SSO",
-        "Email/password + OAuth",
-        "Other"
+        "No offline, server-backed only (simple)",
+        "Read-only offline (cached data) with manual refresh",
+        "Full offline-first with background sync and conflict resolution",
+        "Real-time collaborative editing with live presence and conflict resolution",
+        "Not decided / discuss options"
       ]
     },
     {
-      "id": "security",
-      "question": "Are there specific security or compliance requirements we must meet?",
-      "reason": "The platform will store sensitive scripts, budgets, and personnel data, which may require stronger protections.",
+      "id": "security_compliance",
+      "question": "Are there security, privacy or compliance requirements to meet (e.g., encryption at rest, GDPR/CCPA, audit logs, SOC2)?",
+      "reason": "Compliance and security requirements drive encryption, logging, retention policies, data residency, and operational controls which affect architecture and cost.",
       "type": "multi_choice",
       "options": [
-        "Encryption in transit",
-        "Encryption at rest",
-        "Role-based access control",
-        "Audit logs",
-        "MFA",
-        "GDPR",
-        "CCPA",
-        "IP protection for scripts",
-        "Data residency requirements",
-        "None specified"
-      ]
-    },
-    {
-      "id": "database_requirements",
-      "question": "Do you have any database requirements such as file storage, versioning, backups, or retention policies?",
-      "reason": "These requirements affect schema design, storage architecture, and operational reliability.",
-      "type": "multi_choice",
-      "options": [
-        "File uploads/attachments",
-        "Version history",
-        "Daily backups",
-        "Long-term retention",
-        "Soft delete / archival",
-        "No special requirements"
-      ]
-    },
-    {
-      "id": "integrations",
-      "question": "Do you need any third-party integrations for the MVP?",
-      "reason": "External integrations can significantly change architecture and implementation effort.",
-      "type": "multi_choice",
-      "options": [
-        "Calendar systems",
-        "Cloud storage",
-        "Email service",
-        "SMS service",
-        "Weather API",
-        "Maps/location API",
-        "Payroll/invoicing",
-        "Payment processor",
-        "None for MVP"
-      ]
-    },
-    {
-      "id": "non_functional",
-      "question": "What are the non-functional requirements for the MVP?",
-      "reason": "Performance, scalability, and availability targets influence infrastructure and design choices.",
-      "type": "multi_choice",
-      "options": [
-        "Support many concurrent users",
-        "High availability / uptime SLA",
-        "Fast page load times",
-        "Real-time collaboration",
-        "Offline support",
-        "No special non-functional requirements"
-      ]
-    },
-    {
-      "id": "deployment_model",
-      "question": "Should this be a single-tenant or multi-tenant SaaS application?",
-      "reason": "The tenancy model affects authentication, data isolation, billing, and deployment architecture.",
-      "type": "choice",
-      "options": [
-        "Multi-tenant SaaS",
-        "Single-tenant per studio",
-        "Hybrid",
-        "Not sure"
+        "Encryption in transit only",
+        "Encryption at rest required",
+        "GDPR / EU data residency requirements",
+        "CCPA / US privacy considerations",
+        "Audit logging / tamper-evident history",
+        "SOC2 or other certification planned",
+        "No special requirements",
+        "Other (please describe)"
       ]
     }
   ]
