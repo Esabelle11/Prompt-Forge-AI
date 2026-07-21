@@ -16,7 +16,7 @@ req:NextRequest
     const apiKey =req.headers.get( "x-openai-api-key") ??undefined;
 
     if (USE_MOCK) {
-        console.log("IN MOCK : mockCodexBrief");
+        // console.log("IN MOCK : mockCodexBrief");
         await new Promise((resolve) => setTimeout(resolve, 5000));
   
         return NextResponse.json({

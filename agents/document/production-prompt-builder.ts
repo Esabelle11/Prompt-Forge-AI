@@ -9,7 +9,7 @@ export async function buildProductionPrompt(
     model?:string,
     apiKey?:string
 ){
-    console.log(`In buildConsensus, model :${model}`);
+    // console.log(`In buildConsensus, model :${model}`);
     const openai = createOpenAIClient(apiKey);
 
     const response = await openai.responses.create({

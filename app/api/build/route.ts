@@ -44,7 +44,7 @@ export async function POST(
     let output:string;
 
     if(USE_MOCK){
-      console.log("USING MOCK GENERATION");
+      // console.log("USING MOCK GENERATION");
       output =JSON.stringify( mockGenerate );
     }
     else {

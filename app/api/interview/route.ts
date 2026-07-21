@@ -24,7 +24,7 @@ export async function POST(
     }
 
     if (USE_MOCK) {
-      console.log("IN MOCK : mockInterview");
+      // console.log("IN MOCK : mockInterview");
       await new Promise((resolve) => setTimeout(resolve, 5000));
 
       return NextResponse.json({

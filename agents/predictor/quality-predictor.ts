@@ -8,7 +8,7 @@ export async function predictCodeQuality(
     apiKey?:string
 ){
 
-    console.log(`In predictCodeQuality, model :${model}`);
+    // console.log(`In predictCodeQuality, model :${model}`);
     const openai = createOpenAIClient(apiKey);
 
 

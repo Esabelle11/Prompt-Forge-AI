@@ -18,7 +18,7 @@ export async function POST(
         const apiKey =req.headers.get("x-openai-api-key" ) ??undefined;
 
         if (USE_MOCK) {
-            console.log("IN MOCK : mockReview");
+            // console.log("IN MOCK : mockReview");
             await new Promise((resolve) => setTimeout(resolve, 10000));
       
             return NextResponse.json({

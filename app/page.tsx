@@ -126,7 +126,7 @@ export default function Home(){
 
       const result = data.result;
 
-      console.log("[analysis result]: ",result)
+      // console.log("[analysis result]: ",result)
 
       setAnalysis(result);
       updateStep("analysis","completed");
@@ -149,7 +149,7 @@ export default function Home(){
         });
 
         const interviewData = await interviewRes.json();
-        console.log("[interviewData result]: ",interviewData)
+        // console.log("[interviewData result]: ",interviewData)
 
         setInterview(interviewData);
       }

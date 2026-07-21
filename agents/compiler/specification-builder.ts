@@ -17,7 +17,7 @@ export async function buildSpecification({
   apiKey,
 }: CompileInput) {
  
-  console.log(`In buildSpecification, model :${model}`);
+  // console.log(`In buildSpecification, model :${model}`);
 
   const openai = createOpenAIClient(apiKey);
 

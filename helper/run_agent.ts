@@ -1,7 +1,7 @@
 import { saveOutput, loadOutput } from "@/helper/output_save";
 
 
-const SAVE_OUTPUT = true;
+const SAVE_OUTPUT = false;
 
 export async function runAgent<T>(
   key: string,
@@ -12,13 +12,13 @@ export async function runAgent<T>(
     const cached = await loadOutput<T>(key);
 
     if (cached) {
-      console.log(`Loaded ${key} from cache`);
+      // console.log(`Loaded ${key} from cache`);
       await new Promise((resolve) => setTimeout(resolve, 5000));
       return cached;
     }
   }
 
-  console.log(`Running ${key}`);
+  // console.log(`Running ${key}`);
 
   const result = await fn();
 

@@ -8,7 +8,7 @@ export async function securityAgent(
  apiKey?:string
 ){
 
-console.log(`In securityAgent, model :${model}`);
+// console.log(`In securityAgent, model :${model}`);
 
 const openai = createOpenAIClient(apiKey);
 

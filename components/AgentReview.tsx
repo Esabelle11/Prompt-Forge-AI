@@ -115,8 +115,6 @@ function ReviewCard({
  review:AgentReview;
 }){
 
-  console.log("[review2]: ",review)
-
 
   return (
 
@@ -202,9 +200,7 @@ finalSpecification
 
 }:Props){
 
-  console.log("[reviews]: ", reviews)
-  console.log("[finalSpecification]: ", finalSpecification)
-
+ 
 
 return (
 
@@ -235,10 +231,8 @@ the engineering specification before code generation.
 
 <div className=" grid gap-6 lg:grid-cols-3">
   {agents.map((agent)=>{
-    console.log("[agent]: ",agent)
     const Icon = agent.icon;
     const review =reviews[agent.key as keyof FinalReview];
-    console.log("[agent review]: ",review)
 
     return (
       <ReviewCard

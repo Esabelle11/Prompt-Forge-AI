@@ -22,7 +22,7 @@ export async function POST(req: Request) {
     }
 
     if (USE_MOCK) {
-      console.log("IN MOCK : mockAnalysis");
+      // console.log("IN MOCK : mockAnalysis");
       await new Promise((resolve) => setTimeout(resolve, 5000));
 
       return NextResponse.json({
@@ -46,7 +46,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ result });
 
   } catch (error) {
-    console.log("error: ", error)
+    // console.log("error: ", error)
     const message = error instanceof Error ? error.message : "Failed to analyze prompt";
     return NextResponse.json({ error: message }, { status: 500 });
   }

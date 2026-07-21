@@ -7,7 +7,7 @@ export async function architectAgent(
     model?:string,
     apiKey?:string
 ){
-console.log(`In architectAgent, model :${model}`);
+// console.log(`In architectAgent, model :${model}`);
 
 const openai =  createOpenAIClient(apiKey);
 

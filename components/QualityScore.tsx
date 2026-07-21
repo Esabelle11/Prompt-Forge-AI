@@ -163,8 +163,6 @@ report
 }:Props){
 
 
-console.log("[Quality Report]",report);
-
 
 
 return (

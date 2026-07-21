@@ -22,7 +22,7 @@ export async function buildConsensus({
     apiKey
 }:ConsensusInput){
 
-    console.log(`In buildConsensus, model :${model}`);
+    // console.log(`In buildConsensus, model :${model}`);
 
     const openai =createOpenAIClient(apiKey);
 

@@ -10,8 +10,6 @@ export default function SpecificationViewer({
 
 }:Props){
 
-  console.log("[In SpecificationViewer]")
-
   return(
 
       <div className="rounded-xl border p-6">

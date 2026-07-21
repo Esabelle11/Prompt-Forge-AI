@@ -7,7 +7,7 @@ export async function qaAgent(
     model?: string,
     apiKey?:string
 ){
-    console.log(`In qaAgent, model :${model}`);
+    // console.log(`In qaAgent, model :${model}`);
 
     const openai = createOpenAIClient(apiKey);
 
