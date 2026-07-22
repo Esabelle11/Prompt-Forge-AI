@@ -8,7 +8,7 @@ The goal is simple:
 
 > **Better specifications produce better software.**
 > [Try it out](https://prompt-forge-ai-delta.vercel.app)
- [Video Intro](https://youtu.be/3kM00AKnHXY?si=zN75-qaQtDu3dG3Z)
+>  [![Watch Demo]](https://youtu.be/3kM00AKnHXY?si=zN75-qaQtDu3dG3Z)
 
 ---
 # Table of Contents
