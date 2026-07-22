@@ -25,6 +25,7 @@ The goal is simple:
   - [Production README Generator](#production-readme-generator)
   - [Codex Integration](#codex-integration)
 - [Workflow](#workflow)
+- [Getting Started](#getting-started)
 - [Technology Stack](#technology-stack)
 - [Built with OpenAI Codex & GPT-5.6](#built-with-openai-codex--gpt-56)
 - [Why This Matters](#why-this-matters)
@@ -314,6 +315,24 @@ Production README
       ▼
 Codex Project Generation
 ```
+
+---
+
+# Getting Started
+
+### 1. Install dependencies
+
+```bash
+npm install
+```
+
+### 2. Run the development server
+
+```bash
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ---
 
